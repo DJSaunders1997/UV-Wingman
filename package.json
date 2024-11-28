@@ -74,6 +74,5 @@
 	},
 	"homepage": "https://github.com/DJSaunders1997/uv-Wingman#readme",
 	"dependencies": {
-		"js-yaml": "^4.1.0"
 	}
 }
