@@ -1,0 +1,78 @@
+{
+	"name": "uv-wingman",
+	"displayName": "UV Wingman",
+	"description": "Help users manage and interact with the python UV package manager.",
+	"version": "0.0.1",
+	"publisher": "DJSaunders1997",
+	"engines": {
+		"vscode": "^1.75.1"
+	},
+	"categories": [
+		"Other",
+		"Snippets",
+		"Data Science",
+		"Machine Learning"
+	],
+	"icon": "images/Logo-Banner.png",
+	"galleryBanner": {
+		"color": "#8A2BE2",
+		"theme": "dark"
+	},
+	"keywords": [
+		"Python",
+		"Environment",
+		"Environments",
+		"Requirements",
+		"UV",
+		"Dependencies"
+	],
+	"preview": true,
+	"activationEvents": [
+		"onLanguage:plaintext"
+	],
+	"main": "./src/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "uv-wingman.buildEnvironment",
+				"title": "uv Wingman: Build Environment from requirements.txt file"
+			},
+			{
+				"command": "uv-wingman.installPackages",
+				"title": "uv Wingman: install packages from requirements.txt file"
+			},
+			{
+				"command": "uv-wingman.writeRequirementsFile",
+				"title": "uv Wingman: Write a requirements.txt file from the active environment"
+			},
+			{
+				"command": "uv-wingman.deleteEnvironment",
+				"title": "uv Wingman: Delete Environment"
+			}
+		]
+	},
+	"scripts": {
+		"lint": "eslint .",
+		"pretest": "npm run lint",
+		"test": "node ./test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/glob": "^8.1.0",
+		"@types/mocha": "^10.0.1",
+		"@types/node": "^20.10.2",
+		"@types/vscode": "^1.75.1",
+		"@vscode/test-electron": "^2.3.8",
+		"eslint": "^8.35.0",
+		"glob": "^10.3.10",
+		"mocha": "^10.2.0",
+		"sinon": "^18.0.0",
+		"typescript": "^4.9.5"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/DJSaunders1997/uv-Wingman.git"
+	},
+	"homepage": "https://github.com/DJSaunders1997/uv-Wingman#readme",
+	"dependencies": {
+	}
+}
