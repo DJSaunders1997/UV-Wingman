@@ -1,0 +1,9 @@
+name: example_conda_env
+channels:
+  - defaults
+dependencies:
+  - pip
+  - python
+  - pip:
+    - numpy
+    - pandas

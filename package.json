@@ -1,0 +1,82 @@
+{
+	"name": "conda-wingman",
+	"displayName": "Conda Wingman",
+	"description": "Help programmers use environments without memorising conda commands.",
+	"version": "1.0.0",
+	"publisher": "DJSaunders1997",
+	"engines": {
+		"vscode": "^1.75.1"
+	},
+	"categories": [
+		"Other",
+		"Snippets",
+		"Data Science",
+		"Machine Learning"
+	],
+	"icon": "images/Logo-Banner.png",
+	"galleryBanner": {
+		"color": "#42AF29",
+		"theme": "dark"
+	},
+	"keywords": [
+		"Conda",
+		"Wingman",
+		"Environment",
+		"Environments",
+		"YAML"
+	],
+	"preview": false,
+	"activationEvents": [
+		"onLanguage:yaml",
+		"onCommand:conda-wingman.buildCondaYAML",
+		"onCommand:conda-wingman.activateCondaYAML",
+		"onCommand:conda-wingman.writeRequirementsFile",
+		"onCommand:conda-wingman.deleteCondaEnv"
+	],
+	"main": "./src/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "conda-wingman.buildCondaYAML",
+				"title": "Conda Wingman: Build Conda Environment from YAML file"
+			},
+			{
+				"command": "conda-wingman.activateCondaYAML",
+				"title": "Conda Wingman: Activate Conda Environment from YAML file"
+			},
+			{
+				"command": "conda-wingman.writeRequirementsFile",
+				"title": "Conda Wingman: Write a requirements YAML file from the active Conda Environment"
+			},
+			{
+				"command": "conda-wingman.deleteCondaEnv",
+				"title": "Conda Wingman: Delete Conda Environment"
+			}
+		]
+	},
+	"scripts": {
+		"lint": "eslint .",
+		"pretest": "npm run lint",
+		"test": "node ./test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/glob": "^8.1.0",
+		"@types/mocha": "^10.0.1",
+		"@types/node": "^20.10.2",
+		"@types/vscode": "^1.75.1",
+		"@vscode/test-electron": "^2.3.8",
+		"eslint": "^8.35.0",
+		"glob": "^10.3.10",
+		"mocha": "^10.2.0",
+		"sinon": "^18.0.0",
+		"typescript": "^4.9.5"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/DJSaunders1997/Conda-Wingman.git"
+	},
+	"homepage": "https://github.com/DJSaunders1997/Conda-Wingman#readme",
+	"dependencies": {
+		"js-yaml": "^4.1.0"
+	}
+}
