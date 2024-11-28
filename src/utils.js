@@ -68,8 +68,11 @@ function buildEnv(filename) {
     // TODO: Have python version as input box
     // https://docs.astral.sh/uv/pip/environments/#creating-a-virtual-environment
     sendCommandToTerminal(`uv venv`);
+
+    sendCommandToTerminal(`source .venv/bin/activate`);
+
     // https://docs.astral.sh/uv/pip/packages/#installing-packages-from-files
-    sendCommandToTerminal(`uv install -r ${filename}`);
+    sendCommandToTerminal(`uv pip install -r ${filename}`);
   } catch (error) {
     vscode.window.showErrorMessage("Error activating environment from requirements file.");
     console.log("Error activating environment from requirements file.");
@@ -122,7 +125,7 @@ async function createRequirementsInputBox(defaultValue) {
   vscode.window.showInformationMessage(`Creating requirements file: '${result}'.`);
   console.log(`Creating requirements file: '${result}'.`);
 
-  const command = `uv freeze > "${result}"`;
+  const command = `uv pip freeze > "${result}"`;
   sendCommandToTerminal(command);
 }
 

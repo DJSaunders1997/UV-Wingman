@@ -18,7 +18,7 @@ const {
  * Function that is run on activation of the extension.
  * Main functionality and setup are defined here.
  */
-function build(context) {
+function activate(context) {
   console.log('Congratulations, your extension "uv Wingman" is now active!');
 
   // Setup listener to update status bar items when the active file changes.
@@ -56,20 +56,20 @@ function build(context) {
   context.subscriptions.push(
     fileChangeSubscription,
     buildCommand,
-    buildCommand,
+    installPackagesCommand,
     writeCommand,
     deleteCommand
   );
 }
 
 /**
- * This method is called when the extension is debuildd.
+ * This method is called when the extension is deactivated.
  */
-function debuild() {
-  console.log('Extension "uv Wingman" has been debuildd.');
+function deactivate() {
+  console.log('Extension "uv Wingman" has been deactivated.');
 }
 
 module.exports = {
-  build,
-  debuild,
+  activate,
+  deactivate,
 };
