@@ -1,117 +1,89 @@
 const vscode = require("vscode");
-var path = require("path");
+const path = require("path");
 
 const {
   sendCommandToTerminal,
-  activeFileIsYAML,
+  activeFileIsRequirementsTxt,
   getOpenDocumentPath,
-  activateEnvFromYAML,
-  deleteEnvFromYAML,
-  createYAMLInputBox,
+  buildEnv,
+  deleteEnvByName,
+  createRequirementsInputBox,
 } = require("./utils");
 const {
   createEnvIcon,
-  activateEnvIcon,
+  installPackagesIcon,
   writeEnvIcon,
   deleteEnvIcon,
 } = require("./statusBarItems"); // TODO: Make these arguments to the functions
 
-function buildCondaYAML() {
+/**
+ * builds an environment from a requirements.txt file.
+ */
+function buildEnvironment() {
   const filenameForwardSlash = getOpenDocumentPath();
 
-  if (activeFileIsYAML()) {
-    vscode.window.showInformationMessage(
-      `Creating Env from ${filenameForwardSlash}\n This may take up to a minute...`
-    );
-    console.log(
-      `Creating Env from ${filenameForwardSlash}\n This may take up to a minute...`
-    );
+  const activeFilename = vscode.window.activeTextEditor.document.fileName;
 
-    const createEnvCommand = `conda env create -f "${filenameForwardSlash}"`;
-    sendCommandToTerminal(createEnvCommand);
+  if (activeFileIsRequirementsTxt()) {
+    buildEnv(filenameForwardSlash);
 
-    activateEnvFromYAML(filenameForwardSlash);
+    // Remove loading icon from bar
+    installPackagesIcon.displayDefault();
   } else {
-    const activeFilename = vscode.window.activeTextEditor.document.fileName;
     const fileExt = activeFilename.split(".").pop();
     vscode.window.showErrorMessage(
-      `Cannot build conda env from a ${fileExt} file. Only YAML files are supported.`
-    );
-  }
-}
-
-function activateCondaYAML() {
-  const filenameForwardSlash = getOpenDocumentPath();
-
-  var activeFilename = vscode.window.activeTextEditor.document.fileName;
-
-  // Validate open file is YAML
-  if (activeFileIsYAML()) {
-    activateEnvFromYAML(filenameForwardSlash);
-
-    //Remove loading icon from bar
-    activateEnvIcon.displayDefault();
-  } else {
-    // split string by . and return last array element to get extension
-    var fileExt = activeFilename.split(".").pop();
-    vscode.window.showErrorMessage(
-      `Cannot read conda env info from a ${fileExt} file. Only YAML files are supported.`
+      `Cannot build environment from a ${fileExt} file. Only requirements.txt files are supported.`
     );
   }
 }
 
 /**
- * Deletes a Conda environment.
- * @function deleteCondaEnv
- * @description This function deletes a Conda environment. It checks if the active file is a YAML file and deletes the environment from the YAML file. If the active file is not a YAML file, it displays an error message indicating that only YAML files are supported.
+ * Deletes an environment by its name.
  */
-function deleteCondaEnv() {
-  const filenameForwardSlash = getOpenDocumentPath();
+function deleteEnvironment() {
+  const activeFilename = vscode.window.activeTextEditor.document.fileName;
 
-  var activeFilename = vscode.window.activeTextEditor.document.fileName;
+  if (activeFileIsRequirementsTxt()) {
+    const envName = path.parse(activeFilename).name; // Derive environment name from the file name
+    deleteEnvByName(envName);
 
-  // Validate open file is YAML
-  if (activeFileIsYAML()) {
-    deleteEnvFromYAML(filenameForwardSlash);
-
-    //Remove loading icon from bar
+    // Remove loading icon from bar
     deleteEnvIcon.displayDefault();
   } else {
-    // split string by . and return last array element to get extension
-    var fileExt = activeFilename.split(".").pop();
+    const fileExt = activeFilename.split(".").pop();
     vscode.window.showErrorMessage(
-      `Cannot read conda env info from a ${fileExt} file. Only YAML files are supported.`
+      `Cannot delete environment from a ${fileExt} file. Only requirements.txt files are supported.`
     );
   }
 }
 
-// Command: "Conda Wingman: Create a YAML file from the active Conda Environment"
-// This command will create a requirements yaml to with a name input from the user.
-// TODO: Ask user for input and save as input.yaml.
+/**
+ * Writes a requirements.txt file from the active environment.
+ */
 async function writeRequirementsFile() {
-  // Use current filename as default value if possible.
-  var filepath = vscode.window.activeTextEditor.document.fileName;
-  var filename = path.parse(filepath).base;
+  const filepath = vscode.window.activeTextEditor
+    ? vscode.window.activeTextEditor.document.fileName
+    : undefined;
+  let filename = filepath ? path.parse(filepath).base : "requirements.txt";
 
-  if (filepath == "undefined" || !activeFileIsYAML()) {
-    filename = "requirements.yml";
+  if (!activeFileIsRequirementsTxt()) {
+    filename = "requirements.txt";
   }
 
-  // Get response from user as to what to call their env.
-  var response = createYAMLInputBox(filename);
+  // Prompt the user for the name of the requirements.txt file
+  const response = await createRequirementsInputBox(filename);
   console.log("Response: ", response);
 
   console.log(
-    `While the writeRequirementsFileFunct has finished running.
-        The createYAMLInputBox function is still running in the background.`
+    `While the writeRequirementsFile function has finished running,
+     the createRequirementsInputBox function might still be processing.`
   );
 
   writeEnvIcon.displayDefault();
 }
 
 module.exports = {
-  buildCondaYAML,
-  activateCondaYAML,
+  buildEnvironment,
   writeRequirementsFile,
-  deleteCondaEnv,
+  deleteEnvironment,
 };

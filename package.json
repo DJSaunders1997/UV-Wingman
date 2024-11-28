@@ -1,8 +1,8 @@
 {
-	"name": "conda-wingman",
-	"displayName": "Conda Wingman",
-	"description": "Help programmers use environments without memorising conda commands.",
-	"version": "1.0.0",
+	"name": "uv-wingman",
+	"displayName": "UV Wingman",
+	"description": "Help users manage and interact with the python UV package manager.",
+	"version": "0.0.1",
 	"publisher": "DJSaunders1997",
 	"engines": {
 		"vscode": "^1.75.1"
@@ -15,42 +15,39 @@
 	],
 	"icon": "images/Logo-Banner.png",
 	"galleryBanner": {
-		"color": "#42AF29",
+		"color": "#8A2BE2",
 		"theme": "dark"
 	},
 	"keywords": [
-		"Conda",
-		"Wingman",
+		"Python",
 		"Environment",
 		"Environments",
-		"YAML"
+		"Requirements",
+		"UV",
+		"Dependencies"
 	],
-	"preview": false,
+	"preview": true,
 	"activationEvents": [
-		"onLanguage:yaml",
-		"onCommand:conda-wingman.buildCondaYAML",
-		"onCommand:conda-wingman.activateCondaYAML",
-		"onCommand:conda-wingman.writeRequirementsFile",
-		"onCommand:conda-wingman.deleteCondaEnv"
+		"onLanguage:plaintext"
 	],
 	"main": "./src/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "conda-wingman.buildCondaYAML",
-				"title": "Conda Wingman: Build Conda Environment from YAML file"
+				"command": "uv-wingman.buildEnvironment",
+				"title": "uv Wingman: Build Environment from requirements.txt file"
 			},
 			{
-				"command": "conda-wingman.activateCondaYAML",
-				"title": "Conda Wingman: Activate Conda Environment from YAML file"
+				"command": "uv-wingman.installPackages",
+				"title": "uv Wingman: install packages from requirements.txt file"
 			},
 			{
-				"command": "conda-wingman.writeRequirementsFile",
-				"title": "Conda Wingman: Write a requirements YAML file from the active Conda Environment"
+				"command": "uv-wingman.writeRequirementsFile",
+				"title": "uv Wingman: Write a requirements.txt file from the active environment"
 			},
 			{
-				"command": "conda-wingman.deleteCondaEnv",
-				"title": "Conda Wingman: Delete Conda Environment"
+				"command": "uv-wingman.deleteEnvironment",
+				"title": "uv Wingman: Delete Environment"
 			}
 		]
 	},
@@ -73,9 +70,9 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/DJSaunders1997/Conda-Wingman.git"
+		"url": "https://github.com/DJSaunders1997/uv-Wingman.git"
 	},
-	"homepage": "https://github.com/DJSaunders1997/Conda-Wingman#readme",
+	"homepage": "https://github.com/DJSaunders1997/uv-Wingman#readme",
 	"dependencies": {
 		"js-yaml": "^4.1.0"
 	}

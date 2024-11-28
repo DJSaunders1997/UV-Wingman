@@ -1,9 +1,9 @@
 const vscode = require("vscode");
-const { activeFileIsYAML } = require("./utils");
+const { activeFileIsRequirementsTxt } = require("./utils");
 
 /**
  * Class to extend the vscode createStatusBarItem with additional functionality.
- * Represents the status bar that allows users to easily create environments.
+ * Represents the status bar that allows users to easily manage environments.
  * Choose symbols from this list https://code.visualstudio.com/api/references/icons-in-labels#icon-listing
  */
 class CustomStatusBarItem {
@@ -11,7 +11,7 @@ class CustomStatusBarItem {
     this.defaultText = defaultText;
     this.loadingText = this.defaultText + " $(loading~spin)";
 
-    this.statusBar = vscode.window.createStatusBarItem(); // createStatusBarItem('createEnvStatusBar',1)
+    this.statusBar = vscode.window.createStatusBarItem();
     this.statusBar.text = defaultText;
     this.statusBar.tooltip = tooltip;
     this.statusBar.command = command;
@@ -20,21 +20,22 @@ class CustomStatusBarItem {
   }
 
   /***
-   * Returning text to default state.
+   * Returning text to the default state.
    */
   displayDefault() {
     this.statusBar.text = this.defaultText;
 
-    if (activeFileIsYAML()) {
+    if (activeFileIsRequirementsTxt()) {
       this.statusBar.show();
     } else {
       this.statusBar.hide();
     }
   }
+
   /**
    * To be displayed when action is running from the button being selected.
-   * Currently not implemented as the terminal api does not allow us to view status.
-   * TODO: Implement loading if the terminal api allows us to view status in future.
+   * Currently not implemented as the terminal API does not allow us to view status.
+   * TODO: Implement loading if the terminal API allows us to view status in future.
    */
   displayLoading() {
     this.statusBar.text = this.loadingText;
@@ -42,29 +43,26 @@ class CustomStatusBarItem {
   }
 }
 
-// Use CustomStatusBarItem class to create status bar items
-// Export the object instances and not the class
 // Create custom status bar items
-var createEnvIcon = new CustomStatusBarItem(
-  (defaultText = "$(tools) Build Env from YAML"),
-  (tooltip = "Build conda environment from open YAML file"),
-  (command = "conda-wingman.buildCondaYAML")
+const createEnvIcon = new CustomStatusBarItem(
+  "$(tools) Build UV Env",
+  "Build environment from open requirements.txt file",
+  "uv-wingman.buildEnvironment"
 );
-var activateEnvIcon = new CustomStatusBarItem(
-  (defaultText = "$(symbol-event) Activate Env from YAML"),
-  (tooltip = "Activate conda environment referenced in open YAML file"),
-  (command = "conda-wingman.activateCondaYAML")
+const installPackagesIcon = new CustomStatusBarItem(
+  "$(symbol-event) build UV Env",
+  "build environment referenced in open requirements.txt file",
+  "uv-wingman.installPackages"
 );
-var writeEnvIcon = new CustomStatusBarItem(
-  (defaultText = "$(book) Write Requirements File"),
-  (tooltip = "Write active conda environment to a YAML file"),
-  (command = "conda-wingman.writeRequirementsFile")
+const writeEnvIcon = new CustomStatusBarItem(
+  "$(book) Write Requirements File",
+  "Write the current environment to a requirements.txt file",
+  "uv-wingman.writeRequirementsFile"
 );
-//create custom status bar item to delete env
-var deleteEnvIcon = new CustomStatusBarItem(
-  (defaultText = "$(trashcan) Delete Env from YAML"),
-  (tooltip = "Delete conda environment referenced in open YAML file"),
-  (command = "conda-wingman.deleteCondaEnv")
+const deleteEnvIcon = new CustomStatusBarItem(
+  "$(trashcan) Delete UV Env",
+  "Delete environment using the name derived from the requirements.txt file",
+  "uv-wingman.deleteEnvironment"
 );
 
-module.exports = { createEnvIcon, activateEnvIcon, writeEnvIcon, deleteEnvIcon };
+module.exports = { createEnvIcon, installPackagesIcon, writeEnvIcon, deleteEnvIcon };
