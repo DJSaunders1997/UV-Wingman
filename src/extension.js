@@ -1,10 +1,13 @@
+// This file initialises the extension
+
 const vscode = require("vscode"); // The module 'vscode' contains the VS Code extensibility API
 
 // Import VSCode command functions, utility/helper functions, and custom status bar.
 const {
-  buildEnvironment,
-  writeRequirementsFile,
-  deleteEnvironment,
+  buildEnv,
+  installPackages,
+  writeRequirements,
+  removeEnv
 } = require("./commands");
 const { activeFileIsRequirementsTxt } = require("./utils");
 const {
@@ -37,19 +40,19 @@ function activate(context) {
   // Register VSCode commands as functions defined in other files.
   const buildCommand = vscode.commands.registerCommand(
     "uv-wingman.buildEnvironment",
-    buildEnvironment
+    buildEnv
   );
   const installPackagesCommand = vscode.commands.registerCommand(
     "uv-wingman.installPackages",
-    buildEnvironment // TODO: Change to installPackages
+    installPackages
   );
   const writeCommand = vscode.commands.registerCommand(
     "uv-wingman.writeRequirementsFile",
-    writeRequirementsFile
+    writeRequirements
   );
   const deleteCommand = vscode.commands.registerCommand(
     "uv-wingman.deleteEnvironment",
-    deleteEnvironment
+    removeEnv
   );
 
   // Add subscriptions to the extension context to ensure cleanup on deactivation.
