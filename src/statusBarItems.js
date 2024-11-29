@@ -1,3 +1,5 @@
+// This file configures the status bar items
+
 const vscode = require("vscode");
 const { activeFileIsRequirementsTxt } = require("./utils");
 
@@ -50,17 +52,17 @@ const createEnvIcon = new CustomStatusBarItem(
   "uv-wingman.buildEnvironment"
 );
 const installPackagesIcon = new CustomStatusBarItem(
-  "$(symbol-event) build UV Env",
-  "build environment referenced in open requirements.txt file",
+  "$(symbol-event) Install UV packages",
+  "Install packages from open requirements.txt file",
   "uv-wingman.installPackages"
 );
 const writeEnvIcon = new CustomStatusBarItem(
-  "$(book) Write Requirements File",
+  "$(book) Write UV Requirements File",
   "Write the current environment to a requirements.txt file",
   "uv-wingman.writeRequirementsFile"
 );
 const deleteEnvIcon = new CustomStatusBarItem(
-  "$(trashcan) Delete UV Env",
+  "$(trashcan) Remove UV Env",
   "Delete environment using the name derived from the requirements.txt file",
   "uv-wingman.deleteEnvironment"
 );

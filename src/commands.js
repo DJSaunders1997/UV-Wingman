@@ -1,14 +1,18 @@
+// This file defines the commands that are available in the command palette.
+
 const vscode = require("vscode");
 const path = require("path");
 
 const {
-  sendCommandToTerminal,
   activeFileIsRequirementsTxt,
   getOpenDocumentPath,
-  buildEnv,
-  deleteEnvByName,
-  createRequirementsInputBox,
 } = require("./utils");
+const {
+  uvBuildEnv,
+  uvInstallPackages,
+  uvWriteRequirements,
+  uvRemoveEnv
+} = require("./uv_commands")
 const {
   createEnvIcon,
   installPackagesIcon,
@@ -19,13 +23,34 @@ const {
 /**
  * builds an environment from a requirements.txt file.
  */
-function buildEnvironment() {
+function buildEnv() {
   const filenameForwardSlash = getOpenDocumentPath();
 
   const activeFilename = vscode.window.activeTextEditor.document.fileName;
 
   if (activeFileIsRequirementsTxt()) {
-    buildEnv(filenameForwardSlash);
+    uvBuildEnv(filenameForwardSlash);
+
+    // Remove loading icon from bar
+    createEnvIcon.displayDefault();
+  } else {
+    const fileExt = activeFilename.split(".").pop();
+    vscode.window.showErrorMessage(
+      `Cannot build environment from a ${fileExt} file. Only requirements.txt files are supported.`
+    );
+  }
+}
+
+/**
+ * builds an environment from a requirements.txt file.
+ */
+function installPackages() {
+  const filenameForwardSlash = getOpenDocumentPath();
+
+  const activeFilename = vscode.window.activeTextEditor.document.fileName;
+
+  if (activeFileIsRequirementsTxt()) {
+    uvInstallPackages(filenameForwardSlash);
 
     // Remove loading icon from bar
     installPackagesIcon.displayDefault();
@@ -38,14 +63,39 @@ function buildEnvironment() {
 }
 
 /**
+ * Writes a requirements.txt file from the active environment.
+ */
+async function writeRequirements() {
+  const filepath = vscode.window.activeTextEditor
+    ? vscode.window.activeTextEditor.document.fileName
+    : undefined;
+  let filename = filepath ? path.parse(filepath).base : "requirements.txt";
+
+  if (!activeFileIsRequirementsTxt()) {
+    filename = "requirements.txt";
+  }
+
+  // Prompt the user for the name of the requirements.txt file
+  const response = await uvWriteRequirements(filename);
+  console.log("Response: ", response);
+
+  console.log(
+    `While the writeRequirements function has finished running,
+     the uvWriteRequirements function might still be processing.`
+  );
+
+  writeEnvIcon.displayDefault();
+}
+
+/**
  * Deletes an environment by its name.
  */
-function deleteEnvironment() {
+function removeEnv() {
   const activeFilename = vscode.window.activeTextEditor.document.fileName;
 
   if (activeFileIsRequirementsTxt()) {
     const envName = path.parse(activeFilename).name; // Derive environment name from the file name
-    deleteEnvByName(envName);
+    uvRemoveEnv(envName);
 
     // Remove loading icon from bar
     deleteEnvIcon.displayDefault();
@@ -57,33 +107,9 @@ function deleteEnvironment() {
   }
 }
 
-/**
- * Writes a requirements.txt file from the active environment.
- */
-async function writeRequirementsFile() {
-  const filepath = vscode.window.activeTextEditor
-    ? vscode.window.activeTextEditor.document.fileName
-    : undefined;
-  let filename = filepath ? path.parse(filepath).base : "requirements.txt";
-
-  if (!activeFileIsRequirementsTxt()) {
-    filename = "requirements.txt";
-  }
-
-  // Prompt the user for the name of the requirements.txt file
-  const response = await createRequirementsInputBox(filename);
-  console.log("Response: ", response);
-
-  console.log(
-    `While the writeRequirementsFile function has finished running,
-     the createRequirementsInputBox function might still be processing.`
-  );
-
-  writeEnvIcon.displayDefault();
-}
-
 module.exports = {
-  buildEnvironment,
-  writeRequirementsFile,
-  deleteEnvironment,
+  buildEnv,
+  installPackages,
+  writeRequirements,
+  removeEnv
 };

@@ -18,16 +18,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2 # Checks out the repository code.
-      - uses: actions/setup-node@v1 # Sets up Node.js environment.
+      - uses: actions/setup-node@v3 # Sets up Node.js environment.
         with:
-          node-version: 14
+          node-version: 18
           registry-url: https://registry.npmjs.org/
 
       - name: Install the dependencies
-        run: npm i
+        run: npm ci # Use `ci` for a clean install from `package-lock.json`.
 
-      - name: Install vsce # Installs the vsce tool globally. https://code.visualstudio.com/api/working-with-extensions/publishing-extension
-        run: npm i -g vsce
+      - name: Install @vscode/vsce # Installs the vsce tool globally. https://code.visualstudio.com/api/working-with-extensions/publishing-extension
+        run: npm install -g @vscode/vsce # Use the renamed package.
 
       - name: Publish
         run: vsce publish -p ${{ secrets.VSCE_PAT }}
+
