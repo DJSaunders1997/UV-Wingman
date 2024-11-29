@@ -32,22 +32,22 @@ The supported commands are:
 - **VS Code Command Palette:** `>UV Wingman: Build UV Environment from requirements.txt file`
 
 ### Activating Environments
-- **Command:** build an existing UV environment with: `uv build YOUR-ENVIRONMENT`
+- **Command:** Activate a UV environment using: `source .venv/bin/activate`
 
-- **VS Code Command Palette:** `>UV Wingman: build UV Environment`
+- **VS Code Command Palette:** `>UV Wingman: Activate UV Environment`
+
+### Installing Packages
+- **Command:** Install packages from a `requirements.txt` file using: `uv pip install -r YOUR-REQUIREMENTS.TXT`
+
+- **VS Code Command Palette:** `>UV Wingman: Install Packages from requirements.txt file`
 
 ### Writing Requirements Files
-- **Command:** Export the active UV environment to a requirements file with: `uv env export > YOUR_REQUIREMENTS_FILE`
+- **Command:** Export the active UV environment to a requirements file with: `uv pip freeze > YOUR_REQUIREMENTS_FILE`
 
 - **VS Code Command Palette:** `>UV Wingman: Write a requirements.txt file from the active UV Environment`
 
 ### Deleting Environments
-- **Command:** Remove an existing UV environment by first deactivating, then removing it with:
-```
-uv debuild
-uv env remove -n YOUR-ENVIRONMENT
-```
-
+- **Command:** Remove an existing UV environment by first deactivating, then removing it with: `deactivate` then `rm -rf .venv`
 - **VS Code Command Palette:** `>UV Wingman: Delete UV Environment`
 
 ## Release Notes
