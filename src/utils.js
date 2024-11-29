@@ -1,7 +1,6 @@
 // This file contains helpful utility funcitons
 
 const vscode = require("vscode");
-const fs = require("fs");
 
 /**
  * Sends a command to the terminal.
@@ -57,18 +56,6 @@ function getOpenDocumentPath() {
   console.log(`Amended filename is: ${filename}`);
 
   return filename;
-}
-
-/**
- * Reads the environment name from a requirements.txt file.
- * @param {string} filename Path to the requirements.txt file.
- * @returns {string} The name of the environment.
- */
-function getEnvName(filename) {
-  // Assume the environment name is derived from the filename for simplicity.
-  const envName = filename.split(/[/\\]/).pop().replace(".txt", "");
-  console.log(`Environment name derived from requirements file: ${envName}`);
-  return envName;
 }
 
 module.exports = {

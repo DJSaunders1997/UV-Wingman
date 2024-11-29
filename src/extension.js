@@ -9,7 +9,6 @@ const {
   writeRequirements,
   removeEnv
 } = require("./commands");
-const { activeFileIsRequirementsTxt } = require("./utils");
 const {
   createEnvIcon,
   installPackagesIcon,

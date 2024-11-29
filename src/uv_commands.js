@@ -1,7 +1,6 @@
 // This file contains JS functions that call UV commands in the terminal
 
 const vscode = require("vscode");
-const fs = require("fs");
 
 const {
   sendCommandToTerminal
