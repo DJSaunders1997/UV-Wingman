@@ -86,13 +86,16 @@ function uvBuildEnv(filename) {
    */
   function uvRemoveEnv(envName) {
     try {
+      var envName = ".venv" // TODO: Make user customisable
       vscode.window.showInformationMessage(`Deleting environment: ${envName}.`);
       console.log(`Deleting environment: ${envName}.`);
   
       // Ensure no environment is active
-      sendCommandToTerminal("uv debuild");
-  
-      const command = `uv delete-env --name ${envName}`;
+      // TODO: Need to think about windows too
+      sendCommandToTerminal("deactivate");
+    
+      // TODO: Paramatise with ${envName}
+      const command = `rm -rf .venv`;
       sendCommandToTerminal(command);
     } catch (error) {
       vscode.window.showErrorMessage("Error deleting environment.");
