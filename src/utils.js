@@ -1,10 +1,11 @@
-// This file contains helpful utility funcitons
+// This file contains helpful utility functions
 
 const vscode = require("vscode");
 
 /**
  * Sends a command to the terminal.
  * If no terminal exists, creates a new one.
+ * Detects the terminal type and adjusts commands accordingly.
  * @param {string} command Command to send to the terminal
  */
 function sendCommandToTerminal(command) {
@@ -19,8 +20,21 @@ function sendCommandToTerminal(command) {
   }
 
   terminal.show();
-  terminal.sendText(command);
 
+  // Detect terminal type
+  const terminalType = terminal.name.toLowerCase();
+  console.log(`Detected terminal type: ${terminalType}`);
+
+  // Adjust command based on terminal type
+  if (terminalType.includes("powershell")) {
+    command = command.replace("source", "."); // Powershell uses `.` for sourcing scripts
+  } else if (terminalType.includes("cmd")) {
+    command = command.replace("/", "\\"); // Adjust paths for CMD
+  } else if (terminalType.includes("git bash")) {
+    // Git Bash is Unix-like, no changes needed
+  }
+
+  terminal.sendText(command);
   console.log(`Command '${command}' sent to terminal.`);
 }
 
