@@ -15,25 +15,10 @@ function sendCommandToTerminal(command) {
     vscode.window.showInformationMessage(
       "No active terminal found. Creating new terminal."
     );
-    console.log("No active terminal found. Creating new terminal.");
     terminal = vscode.window.createTerminal();
   }
 
   terminal.show();
-
-  // Detect terminal type
-  const terminalType = terminal.name.toLowerCase();
-  console.log(`Detected terminal type: ${terminalType}`);
-
-  // Adjust command based on terminal type
-  if (terminalType.includes("powershell")) {
-    command = command.replace("source", "."); // Powershell uses `.` for sourcing scripts
-  } else if (terminalType.includes("cmd")) {
-    command = command.replace("/", "\\"); // Adjust paths for CMD
-  } else if (terminalType.includes("git bash")) {
-    // Git Bash is Unix-like, no changes needed
-  }
-
   terminal.sendText(command);
   console.log(`Command '${command}' sent to terminal.`);
 }

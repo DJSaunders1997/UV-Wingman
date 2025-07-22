@@ -12,7 +12,7 @@ const {
   uvInstallPackages,
   uvWriteRequirements,
   uvRemoveEnv
-} = require("./uv_commands")
+} = require("./uvCommands")
 const {
   createEnvIcon,
   installPackagesIcon,

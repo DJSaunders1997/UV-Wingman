@@ -5,6 +5,7 @@ const vscode = require("vscode");
 const {
   sendCommandToTerminal
 } = require("./utils");
+const { getTerminalCommands } = require("./terminalCommands");
 
 /**
  * builds a UV environment using a requirements.txt file.
@@ -14,7 +15,7 @@ async function uvBuildEnv(filename) {
     try {
         const pythonVersion = await vscode.window.showInputBox({
             placeHolder: "Enter Python version (e.g., 3.13)",
-            value: "3.13", // Default Python version
+            value: "", // Default value
             validateInput: (text) => {
                 if (!text) return "Python version cannot be empty!";
                 if (!/^\d+\.\d+$/.test(text)) return "Invalid Python version format!";
@@ -26,18 +27,15 @@ async function uvBuildEnv(filename) {
             return;
         }
 
+        const cmds = getTerminalCommands();
+
         vscode.window.showInformationMessage(`Activating environment from ${filename} with Python ${pythonVersion}.`);
         console.log(`Activating environment from ${filename} with Python ${pythonVersion}.`);
 
-        // Remove any existing environment
-        sendCommandToTerminal(`rm -rf .venv`);
+        sendCommandToTerminal(cmds.removeDir);
+        sendCommandToTerminal(cmds.createVenv(pythonVersion));
+        sendCommandToTerminal(cmds.activateVenv);
 
-        // Create virtual environment with specified Python version
-        sendCommandToTerminal(`uv venv --python=${pythonVersion}`);
-
-        sendCommandToTerminal(`source .venv/bin/activate`);
-
-        // Call existing function to install packages
         uvInstallPackages(filename);
     } catch (error) {
         vscode.window.showErrorMessage("Error activating environment from requirements file.");
@@ -52,11 +50,10 @@ async function uvBuildEnv(filename) {
  */
 function uvInstallPackages(filename) {
     try {
+        const cmds = getTerminalCommands();
         vscode.window.showInformationMessage(`Installing packages from ${filename}.`);
         console.log(`Installing packages from ${filename}.`);
-
-        // https://docs.astral.sh/uv/pip/packages/#installing-packages-from-files
-        sendCommandToTerminal(`uv pip install -r ${filename}`);
+        sendCommandToTerminal(cmds.pipInstall(filename));
     } catch (error) {
         vscode.window.showErrorMessage("Error installing packages from requirements file.");
         console.log("Error installing packages from requirements file.");
@@ -85,11 +82,10 @@ async function uvWriteRequirements(defaultValue) {
         return;
     }
 
+    const cmds = getTerminalCommands();
     vscode.window.showInformationMessage(`Creating requirements file: '${result}'.`);
     console.log(`Creating requirements file: '${result}'.`);
-
-    const command = `uv pip freeze > "${result}"`;
-    sendCommandToTerminal(command);
+    sendCommandToTerminal(cmds.freeze(result));
 }
 
 /**
@@ -98,13 +94,11 @@ async function uvWriteRequirements(defaultValue) {
  */
 function uvRemoveEnv(envName) {
     try {
-        var envName = ".venv"; // TODO: Make user customisable
+        const cmds = getTerminalCommands();
+        envName = ".venv"; // TODO: Make user customisable
         vscode.window.showInformationMessage(`Deleting environment: ${envName}.`);
         console.log(`Deleting environment: ${envName}.`);
-
-        // Remove the environment directory
-        const command = `rm -rf ${envName}`;
-        sendCommandToTerminal(command);
+        sendCommandToTerminal(cmds.removeDir);
     } catch (error) {
         vscode.window.showErrorMessage("Error deleting environment.");
         console.log("Error deleting environment.");
