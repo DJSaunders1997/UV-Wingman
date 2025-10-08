@@ -1,0 +1,39 @@
+name: Integration
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:  # This will now trigger on any branch push
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test Extension Packaging
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Linting
+        run: npm run lint
+
+      - name: Install vsce
+        run: npm install -g @vscode/vsce@latest
+
+      - name: Package Extension
+        run: vsce package
+
+      - name: Upload VSIX as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension
+          path: "*.vsix"
