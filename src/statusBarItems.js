@@ -41,19 +41,25 @@ class CustomStatusBarItem {
 
 // Create custom status bar items
 const initProjectIcon = new CustomStatusBarItem(
-  "$(repo) Init UV Project",
+  "$(repo) UV - Init Project",
   "Initialize new UV project",
   "uv-wingman.initProject"
 );
 
 const syncDepsIcon = new CustomStatusBarItem(
-  "$(sync) Sync Dependencies",
+  "$(sync) UV - Sync Deps",
   "Sync dependencies with pyproject.toml",
   "uv-wingman.syncDependencies"
 );
 
+const activateEnvIcon = new CustomStatusBarItem(
+  "$(play) UV - Activate",
+  "Activate UV environment",
+  "uv-wingman.activateEnvironment"
+);
+
 const deleteEnvIcon = new CustomStatusBarItem(
-  "$(trashcan) Remove UV Env",
+  "$(trashcan) UV - Remove Env",
   "Delete UV environment by removing .venv directory",
   "uv-wingman.deleteEnvironment"
 );
@@ -61,5 +67,6 @@ const deleteEnvIcon = new CustomStatusBarItem(
 module.exports = {
   initProjectIcon,
   syncDepsIcon,
+  activateEnvIcon,
   deleteEnvIcon
 };

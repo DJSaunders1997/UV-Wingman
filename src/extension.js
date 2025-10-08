@@ -7,7 +7,8 @@ const {
   removeEnv,
   initProject,
   createEnv,
-  syncDependencies
+  syncDependencies,
+  activateEnv
 } = require("./commands");
 
 const {
@@ -15,6 +16,7 @@ const {
   createEnvIcon,
   syncDepsIcon,
   deleteEnvIcon,
+  activateEnvIcon
 } = require("./statusBarItems");
 
 /**
@@ -39,6 +41,7 @@ function activate(context) {
       createEnvIcon.displayDefault();
       syncDepsIcon.displayDefault();
       deleteEnvIcon.displayDefault();
+      activateEnvIcon.displayDefault();
     });
 
     // Register VSCode commands
@@ -62,13 +65,19 @@ function activate(context) {
       removeEnv
     );
 
+    const activateCommand = vscode.commands.registerCommand(
+      "uv-wingman.activateEnvironment", 
+      activateEnv
+    );
+
     // Add subscriptions to the extension context
     context.subscriptions.push(
       listener,
       initCommand,
       createCommand,
       syncCommand,
-      deleteCommand
+      deleteCommand,
+      activateCommand
     );
 
     // Show status bar items initially
@@ -76,6 +85,7 @@ function activate(context) {
     createEnvIcon.displayDefault();
     syncDepsIcon.displayDefault();
     deleteEnvIcon.displayDefault();
+    activateEnvIcon.displayDefault();
 
     console.log('UV Wingman activated successfully');
   });

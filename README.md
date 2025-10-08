@@ -19,39 +19,40 @@ UV Wingman aims to add QoL improvements that help programmers use environments w
 
 ![VSCode Screenshot](images/VSCode-Screenshot.png)
 
-UV Wingman dynamically adds status bar items for quick UV command access when a `pyproject.toml` file is open, simplifying UV environment management directly within VSCode.
+UV Wingman automatically activates when a `pyproject.toml` file is found in your workspace, providing easy access to UV package manager commands through both the status bar and command palette.
 
 **Supports 7 major terminal shells out of the box:**  
 PowerShell, Command Prompt (cmd), Git Bash, WSL, Bash, Zsh, and Fish.
 
-These can also be accessed from the VSCode command palette:
+These commands can be accessed from the VSCode command palette:
 ![Command Palette](images/Command-Palette-Screenshot.png)
 
 The supported commands are:
 
 ### Project Initialization
-- **Command:** Initialize a new UV project: `uv init`
+- **Command:** `uv init`
 - **VS Code Command Palette:** `>UV Wingman: Initialize UV Project`
+- **Description:** Creates a new UV project in the current directory
 
 ### Creating Environments 
-- **Command:** Create a UV environment from pyproject.toml: `uv pip install .`
-- **VS Code Command Palette:** `>UV Wingman: Build UV Environment from pyproject.toml`
+- **Command:** `uv pip install .`
+- **VS Code Command Palette:** `>UV Wingman: Create Environment from pyproject.toml`
+- **Description:** Creates a new virtual environment and installs dependencies
 
 ### Activating Environments
-- **Command:** Activate a UV environment: `source .venv/bin/activate`
+- **Command:** `source .venv/bin/activate` (or shell equivalent)
 - **VS Code Command Palette:** `>UV Wingman: Activate UV Environment`
+- **Description:** Activates the UV virtual environment
 
 ### Syncing Dependencies
-- **Command:** Sync dependencies with pyproject.toml: `uv sync`
-- **VS Code Command Palette:** `>UV Wingman: Sync UV Environment`
-
-### Adding Dependencies
-- **Command:** Add a new dependency: `uv add package_name`
-- **VS Code Command Palette:** `>UV Wingman: Add Package to UV Environment`
+- **Command:** `uv sync`
+- **VS Code Command Palette:** `>UV Wingman: Sync Dependencies with pyproject.toml`
+- **Description:** Updates environment to match pyproject.toml dependencies
 
 ### Deleting Environments
-- **Command:** Remove an existing UV environment: `deactivate` then `rm -rf .venv`
+- **Command:** Removes `.venv` directory
 - **VS Code Command Palette:** `>UV Wingman: Delete UV Environment`
+- **Description:** Deletes the UV virtual environment
 
 ## Example pyproject.toml
 ```toml
@@ -66,25 +67,22 @@ dependencies = [
 ]
 ```
 
-## JS Files Explained
+## Project Structure
 
 - **src/commands.js**  
-  Contains the implementation of all command palette actions provided by the extension. This includes registering commands, handling user input, and invoking the appropriate logic for each command. It acts as the central hub for user-triggered features, ensuring that commands are properly integrated with VS Code’s API and the rest of the extension.
+  Implements all command palette actions and UV operations.
 
 - **src/extension.js**  
-  The main entry point for the extension. This file is responsible for activating the extension when VS Code starts or when a relevant event occurs. It registers all commands, sets up event listeners, and manages the extension’s lifecycle. It ensures that all features are initialized and available to the user.
+  Main entry point that activates when a pyproject.toml is found.
 
 - **src/statusBarItems.js**  
-  Manages the creation and updating of custom status bar items in VS Code. These items provide quick access to frequently used UV actions and display relevant status information. The file handles user interactions with the status bar and updates the UI in response to changes in the workspace or extension state.
+  Manages the status bar items for quick access to UV commands.
 
 - **src/utils.js**  
-  Provides utility functions used throughout the extension. This includes helpers for running terminal commands, checking file existence, formatting output, and other common tasks. By centralizing these utilities, the codebase remains DRY (Don’t Repeat Yourself) and easier to maintain.
-
-- **src/uv_commands.js**  
-  Implements functions that interact directly with the UV package manager. This includes commands for building, installing, writing, and removing environments. The file abstracts the details of invoking UV commands, handling their output, and reporting results back to the user or other parts of the extension.
+  Provides utility functions for terminal operations.
 
 - **src/terminalCommands.js**  
-  Centralizes all terminal-specific command templates and logic. This file detects the current terminal type (PowerShell, CMD, Git Bash, etc.) and provides the correct command syntax for each operation (such as activating environments, installing packages, or removing directories). By isolating terminal differences here, the rest of the extension can remain terminal-agnostic and easier to maintain.
+  Handles shell-specific command templates and terminal detection.
 
 ## Release Notes
 
