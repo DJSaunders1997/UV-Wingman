@@ -17,17 +17,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2 # Checks out the repository code.
-      - uses: actions/setup-node@v3 # Sets up Node.js environment.
+      - uses: actions/checkout@v4 # Updated to latest version
+      
+      - uses: actions/setup-node@v4 # Updated to latest version
         with:
-          node-version: 18
+          node-version: 20 # Updated to Node.js 20 LTS
           registry-url: https://registry.npmjs.org/
 
       - name: Install the dependencies
-        run: npm ci # Use `ci` for a clean install from `package-lock.json`.
+        run: npm ci
 
-      - name: Install @vscode/vsce # Installs the vsce tool globally. https://code.visualstudio.com/api/working-with-extensions/publishing-extension
-        run: npm install -g @vscode/vsce # Use the renamed package.
+      - name: Install vsce
+        run: npm install -g @vscode/vsce@latest # Specify latest version
 
       - name: Publish
         run: vsce publish -p ${{ secrets.VSCE_PAT }}
