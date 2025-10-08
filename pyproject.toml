@@ -1,0 +1,11 @@
+[project]
+name = "uv-wingman"
+version = "0.1.0"
+description = "Example pyproject.toml"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=2.1",
+    "pandas>=2.2",
+    "ruff>=0.8",
+]
