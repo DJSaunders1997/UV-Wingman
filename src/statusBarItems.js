@@ -1,7 +1,6 @@
 // This file configures the status bar items
 
 const vscode = require("vscode");
-const { activeFileIsRequirementsTxt } = require("./utils");
 
 /**
  * Class to extend the vscode createStatusBarItem with additional functionality.
@@ -26,12 +25,7 @@ class CustomStatusBarItem {
    */
   displayDefault() {
     this.statusBar.text = this.defaultText;
-
-    if (activeFileIsRequirementsTxt()) {
-      this.statusBar.show();
-    } else {
-      this.statusBar.hide();
-    }
+    this.statusBar.show();
   }
 
   /**
@@ -46,25 +40,26 @@ class CustomStatusBarItem {
 }
 
 // Create custom status bar items
-const createEnvIcon = new CustomStatusBarItem(
-  "$(tools) Build UV Env",
-  "Build environment from open requirements.txt file",
-  "uv-wingman.buildEnvironment"
+const initProjectIcon = new CustomStatusBarItem(
+  "$(repo) Init UV Project",
+  "Initialize new UV project",
+  "uv-wingman.initProject"
 );
-const installPackagesIcon = new CustomStatusBarItem(
-  "$(symbol-event) Install UV packages",
-  "Install packages from open requirements.txt file",
-  "uv-wingman.installPackages"
+
+const syncDepsIcon = new CustomStatusBarItem(
+  "$(sync) Sync Dependencies",
+  "Sync dependencies with pyproject.toml",
+  "uv-wingman.syncDependencies"
 );
-const writeEnvIcon = new CustomStatusBarItem(
-  "$(book) Write UV Requirements File",
-  "Write the current environment to a requirements.txt file",
-  "uv-wingman.writeRequirementsFile"
-);
+
 const deleteEnvIcon = new CustomStatusBarItem(
   "$(trashcan) Remove UV Env",
-  "Delete environment using the name derived from the requirements.txt file",
+  "Delete UV environment by removing .venv directory",
   "uv-wingman.deleteEnvironment"
 );
 
-module.exports = { createEnvIcon, installPackagesIcon, writeEnvIcon, deleteEnvIcon };
+module.exports = {
+  initProjectIcon,
+  syncDepsIcon,
+  deleteEnvIcon
+};

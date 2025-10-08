@@ -19,7 +19,7 @@ UV Wingman aims to add QoL improvements that help programmers use environments w
 
 ![VSCode Screenshot](images/VSCode-Screenshot.png)
 
-UV Wingman dynamically adds status bar items for quick UV command access when a `requirements.txt` file is open, simplifying UV environment management directly within VSCode.
+UV Wingman dynamically adds status bar items for quick UV command access when a `pyproject.toml` file is open, simplifying UV environment management directly within VSCode.
 
 **Supports 7 major terminal shells out of the box:**  
 PowerShell, Command Prompt (cmd), Git Bash, WSL, Bash, Zsh, and Fish.
@@ -29,29 +29,42 @@ These can also be accessed from the VSCode command palette:
 
 The supported commands are:
 
-### Creating Environments 
-- **Command:** Create a UV environment from the open requirements file by running: `uv env create -f YOUR-REQUIREMENTS.TXT`
+### Project Initialization
+- **Command:** Initialize a new UV project: `uv init`
+- **VS Code Command Palette:** `>UV Wingman: Initialize UV Project`
 
-- **VS Code Command Palette:** `>UV Wingman: Build UV Environment from requirements.txt file`
+### Creating Environments 
+- **Command:** Create a UV environment from pyproject.toml: `uv pip install .`
+- **VS Code Command Palette:** `>UV Wingman: Build UV Environment from pyproject.toml`
 
 ### Activating Environments
-- **Command:** Activate a UV environment using: `source .venv/bin/activate`
-
+- **Command:** Activate a UV environment: `source .venv/bin/activate`
 - **VS Code Command Palette:** `>UV Wingman: Activate UV Environment`
 
-### Installing Packages
-- **Command:** Install packages from a `requirements.txt` file using: `uv pip install -r YOUR-REQUIREMENTS.TXT`
+### Syncing Dependencies
+- **Command:** Sync dependencies with pyproject.toml: `uv sync`
+- **VS Code Command Palette:** `>UV Wingman: Sync UV Environment`
 
-- **VS Code Command Palette:** `>UV Wingman: Install Packages from requirements.txt file`
-
-### Writing Requirements Files
-- **Command:** Export the active UV environment to a requirements file with: `uv pip freeze > YOUR_REQUIREMENTS_FILE`
-
-- **VS Code Command Palette:** `>UV Wingman: Write a requirements.txt file from the active UV Environment`
+### Adding Dependencies
+- **Command:** Add a new dependency: `uv add package_name`
+- **VS Code Command Palette:** `>UV Wingman: Add Package to UV Environment`
 
 ### Deleting Environments
-- **Command:** Remove an existing UV environment by first deactivating, then removing it with: `deactivate` then `rm -rf .venv`
+- **Command:** Remove an existing UV environment: `deactivate` then `rm -rf .venv`
 - **VS Code Command Palette:** `>UV Wingman: Delete UV Environment`
+
+## Example pyproject.toml
+```toml
+[project]
+name = "your-project"
+version = "0.1.0"
+description = "Your project description"
+requires-python = ">=3.12"
+dependencies = [
+    "package1>=1.0",
+    "package2>=2.0",
+]
+```
 
 ## JS Files Explained
 

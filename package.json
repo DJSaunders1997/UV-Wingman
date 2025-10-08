@@ -22,32 +22,32 @@
 		"Python",
 		"Environment",
 		"Environments",
-		"Requirements",
 		"UV",
-		"Dependencies"
+		"Dependencies",
+		"pyproject.toml"
 	],
 	"preview": true,
 	"activationEvents": [
-		"onLanguage:plaintext"
+		"onLanguage:toml"
 	],
 	"main": "./src/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "uv-wingman.buildEnvironment",
-				"title": "uv Wingman: Build Environment from requirements.txt file"
+				"command": "uv-wingman.initProject",
+				"title": "UV Wingman: Initialize UV Project"
 			},
 			{
-				"command": "uv-wingman.installPackages",
-				"title": "uv Wingman: install packages from requirements.txt file"
+				"command": "uv-wingman.createEnvironment",
+				"title": "UV Wingman: Create Environment from pyproject.toml"
 			},
 			{
-				"command": "uv-wingman.writeRequirementsFile",
-				"title": "uv Wingman: Write a requirements.txt file from the active environment"
+				"command": "uv-wingman.syncDependencies",
+				"title": "UV Wingman: Sync Dependencies with pyproject.toml"
 			},
 			{
 				"command": "uv-wingman.deleteEnvironment",
-				"title": "uv Wingman: Delete Environment"
+				"title": "UV Wingman: Delete Environment"
 			}
 		]
 	},
