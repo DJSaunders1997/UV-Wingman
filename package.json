@@ -1,0 +1,78 @@
+{
+	"name": "uv-wingman",
+	"displayName": "UV Wingman",
+	"description": "Help users manage and interact with the python UV package manager.",
+	"version": "1.0.0",
+	"publisher": "DJSaunders1997",
+	"engines": {
+		"vscode": "^1.95.0"
+	},
+	"categories": [
+		"Other",
+		"Snippets",
+		"Data Science",
+		"Machine Learning"
+	],
+	"icon": "images/Logo-512x512.png",
+	"galleryBanner": {
+		"color": "#8A2BE2",
+		"theme": "dark"
+	},
+	"keywords": [
+		"Python",
+		"Environment",
+		"Environments",
+		"UV",
+		"Dependencies",
+		"pyproject.toml"
+	],
+	"preview": true,
+	"activationEvents": [
+		"onLanguage:toml"
+	],
+	"main": "./src/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "uv-wingman.initProject",
+				"title": "UV Wingman: Initialize UV Project"
+			},
+			{
+				"command": "uv-wingman.createEnvironment",
+				"title": "UV Wingman: Create Environment from pyproject.toml"
+			},
+			{
+				"command": "uv-wingman.syncDependencies",
+				"title": "UV Wingman: Sync Dependencies with pyproject.toml"
+			},
+			{
+				"command": "uv-wingman.deleteEnvironment",
+				"title": "UV Wingman: Delete Environment"
+			}
+		]
+	},
+	"scripts": {
+		"lint": "eslint .",
+		"pretest": "npm run lint",
+		"test": "node ./test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/glob": "^8.1.0",
+		"@types/mocha": "^10.0.10",
+		"@types/node": "^22.10.1",
+		"@types/vscode": "^1.95.0",
+		"@vscode/test-electron": "^2.3.8",
+		"eslint": "^8.35.0",
+		"glob": "^11.0.0",
+		"mocha": "^10.8.2",
+		"sinon": "^19.0.2",
+		"typescript": "^4.9.5"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/DJSaunders1997/uv-Wingman.git"
+	},
+	"homepage": "https://github.com/DJSaunders1997/uv-Wingman#readme",
+	"dependencies": {
+	}
+}
