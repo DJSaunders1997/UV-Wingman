@@ -1,4 +1,5 @@
 const vscode = require("vscode");
+const { activate } = require("./extension");
 
 /**
  * Shared command templates for POSIX-like shells (bash, zsh, wsl, gitbash, default).
@@ -6,9 +7,8 @@ const vscode = require("vscode");
 const posixCommands = {
     activateVenv: 'source .venv/bin/activate',
     removeDir: 'rm -rf .venv',
-    pipInstall: (filename) => `uv pip install -r ${filename}`,
-    freeze: (filename) => `uv pip freeze > "${filename}"`,
-    createVenv: (pythonVersion) => `uv venv --python=${pythonVersion}`,
+    initProject: 'uv init',
+    syncDeps: 'uv sync',
 };
 
 /**
@@ -26,16 +26,16 @@ const TerminalCommandSets = {
     powershell: {
         activateVenv: '.\\.venv\\Scripts\\Activate.ps1',
         removeDir: 'Remove-Item -Recurse -Force .venv',
-        pipInstall: (filename) => `uv pip install -r ${filename}`,
-        freeze: (filename) => `uv pip freeze > "${filename}"`,
-        createVenv: (pythonVersion) => `uv venv --python=${pythonVersion}`,
+        initProject: 'uv init',
+        syncDeps: 'uv sync',
+        createVenv: 'uv pip install .',
     },
     cmd: {
         activateVenv: '.\\.venv\\Scripts\\activate.bat',
         removeDir: 'rmdir /s /q .venv',
-        pipInstall: (filename) => `uv pip install -r ${filename}`,
-        freeze: (filename) => `uv pip freeze > "${filename}"`,
-        createVenv: (pythonVersion) => `uv venv --python=${pythonVersion}`,
+        initProject: 'uv init',
+        syncDeps: 'uv sync',
+        createVenv: 'uv pip install .',
     },
     gitbash: posixCommands,
     wsl: posixCommands,

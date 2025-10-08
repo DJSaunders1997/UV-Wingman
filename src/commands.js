@@ -1,115 +1,86 @@
 // This file defines the commands that are available in the command palette.
 
 const vscode = require("vscode");
-const path = require("path");
-
-const {
-  activeFileIsRequirementsTxt,
-  getOpenDocumentPath,
-} = require("./utils");
-const {
-  uvBuildEnv,
-  uvInstallPackages,
-  uvWriteRequirements,
-  uvRemoveEnv
-} = require("./uvCommands")
-const {
-  createEnvIcon,
-  installPackagesIcon,
-  writeEnvIcon,
-  deleteEnvIcon,
-} = require("./statusBarItems"); // TODO: Make these arguments to the functions
+const { sendCommandToTerminal } = require("./utils");
+const { getTerminalCommands } = require("./terminalCommands");
+const { deleteEnvIcon } = require("./statusBarItems");
 
 /**
- * builds an environment from a requirements.txt file.
+ * Deletes a UV environment by removing the .venv directory.
  */
-function buildEnv() {
-  const filenameForwardSlash = getOpenDocumentPath();
-
-  const activeFilename = vscode.window.activeTextEditor.document.fileName;
-
-  if (activeFileIsRequirementsTxt()) {
-    uvBuildEnv(filenameForwardSlash);
-
-    // Remove loading icon from bar
-    createEnvIcon.displayDefault();
-  } else {
-    const fileExt = activeFilename.split(".").pop();
-    vscode.window.showErrorMessage(
-      `Cannot build environment from a ${fileExt} file. Only requirements.txt files are supported.`
-    );
-  }
+async function removeEnv() {
+    try {
+        const cmds = getTerminalCommands();
+        vscode.window.showInformationMessage("Deleting UV environment...");
+        sendCommandToTerminal(cmds.removeDir);
+        deleteEnvIcon.displayDefault();
+    } catch (error) {
+        vscode.window.showErrorMessage("Error deleting environment");
+        console.error(error);
+    }
 }
 
 /**
- * builds an environment from a requirements.txt file.
+ * Initializes a new UV project.
  */
-function installPackages() {
-  const filenameForwardSlash = getOpenDocumentPath();
-
-  const activeFilename = vscode.window.activeTextEditor.document.fileName;
-
-  if (activeFileIsRequirementsTxt()) {
-    uvInstallPackages(filenameForwardSlash);
-
-    // Remove loading icon from bar
-    installPackagesIcon.displayDefault();
-  } else {
-    const fileExt = activeFilename.split(".").pop();
-    vscode.window.showErrorMessage(
-      `Cannot build environment from a ${fileExt} file. Only requirements.txt files are supported.`
-    );
-  }
+async function initProject() {
+    try {
+        const cmds = getTerminalCommands();
+        sendCommandToTerminal(cmds.initProject);
+        vscode.window.showInformationMessage('Initialized UV project');
+    } catch (error) {
+        vscode.window.showErrorMessage("Error initializing UV project");
+        console.error(error);
+    }
 }
 
 /**
- * Writes a requirements.txt file from the active environment.
+ * Creates and activates a new UV environment.
  */
-async function writeRequirements() {
-  const filepath = vscode.window.activeTextEditor
-    ? vscode.window.activeTextEditor.document.fileName
-    : undefined;
-  let filename = filepath ? path.parse(filepath).base : "requirements.txt";
-
-  if (!activeFileIsRequirementsTxt()) {
-    filename = "requirements.txt";
-  }
-
-  // Prompt the user for the name of the requirements.txt file
-  const response = await uvWriteRequirements(filename);
-  console.log("Response: ", response);
-
-  console.log(
-    `While the writeRequirements function has finished running,
-     the uvWriteRequirements function might still be processing.`
-  );
-
-  writeEnvIcon.displayDefault();
+async function createEnv() {
+    try {
+        const cmds = getTerminalCommands();
+        sendCommandToTerminal(cmds.createVenv);
+        sendCommandToTerminal(cmds.activateVenv);
+        vscode.window.showInformationMessage('Created and activated UV environment');
+    } catch (error) {
+        vscode.window.showErrorMessage("Error creating UV environment");
+        console.error(error);
+    }
 }
 
 /**
- * Deletes an environment by its name.
+ * Syncs UV dependencies with pyproject.toml.
  */
-function removeEnv() {
-  const activeFilename = vscode.window.activeTextEditor.document.fileName;
+async function syncDependencies() {
+    try {
+        const cmds = getTerminalCommands();
+        sendCommandToTerminal(cmds.syncDeps);
+        vscode.window.showInformationMessage('Synced UV dependencies');
+    } catch (error) {
+        vscode.window.showErrorMessage("Error syncing UV dependencies");
+        console.error(error);
+    }
+}
 
-  if (activeFileIsRequirementsTxt()) {
-    const envName = path.parse(activeFilename).name; // Derive environment name from the file name
-    uvRemoveEnv(envName);
-
-    // Remove loading icon from bar
-    deleteEnvIcon.displayDefault();
-  } else {
-    const fileExt = activeFilename.split(".").pop();
-    vscode.window.showErrorMessage(
-      `Cannot delete environment from a ${fileExt} file. Only requirements.txt files are supported.`
-    );
-  }
+/**
+ * Activates an existing UV environment.
+ */
+async function activateEnv() {
+    try {
+        const cmds = getTerminalCommands();
+        sendCommandToTerminal(cmds.activateVenv);
+        vscode.window.showInformationMessage("UV environment activated");
+    } catch (error) {
+        vscode.window.showErrorMessage("Failed to activate UV environment");
+        console.error(error);
+    }
 }
 
 module.exports = {
-  buildEnv,
-  installPackages,
-  writeRequirements,
-  removeEnv
+    removeEnv,
+    initProject,
+    createEnv,
+    syncDependencies,
+    activateEnv
 };
