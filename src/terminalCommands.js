@@ -1,5 +1,4 @@
 const vscode = require("vscode");
-const { activate } = require("./extension");
 
 /**
  * Shared command templates for POSIX-like shells (bash, zsh, wsl, gitbash, default).
