@@ -28,7 +28,7 @@
 	],
 	"preview": true,
 	"activationEvents": [
-		"onLanguage:toml"
+		"workspaceContains:pyproject.toml"
 	],
 	"main": "./src/extension.js",
 	"contributes": {
