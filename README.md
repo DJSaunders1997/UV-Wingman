@@ -10,22 +10,33 @@
 [![Downloads](https://vsmarketplacebadges.dev/downloads-short/djsaunders1997.uv-wingman.png?style=for-the-badge&colorA=252525&colorB=8A2BE2)](https://marketplace.visualstudio.com/items?itemName=djsaunders1997.uv-wingman)
 [![Ratings](https://vsmarketplacebadges.dev/rating-short/djsaunders1997.uv-wingman.png?style=for-the-badge&colorA=252525&colorB=8A2BE2)](https://marketplace.visualstudio.com/items?itemName=djsaunders1997.uv-wingman)
 
-This is the README for the extension [UV Wingman](https://marketplace.visualstudio.com/items?itemName=DJSaunders1997.uv-wingman).
+This is the README for the extension [UV Wingman](https://marketplace.visualstudio.com/items?itemName=DJSaunders19997.uv-wingman).
 
 This extension aims to help VSCode users manage and interact with UV environments.
 UV Wingman aims to add QoL improvements that help programmers use environments without having to memorize all of the UV commands.
 
 ## Features
 
-![VSCode Screenshot](images/VSCode-Screenshot.png)
+UV Wingman detects a pyproject.toml in your workspace and exposes common UV package-manager tasks through both the status bar and the Command Palette so you can manage environments without memorizing commands.
 
-UV Wingman automatically activates when a `pyproject.toml` file is found in your workspace, providing easy access to UV package manager commands through both the status bar and command palette.
+Key capabilities:
+- Automatic activation when a `pyproject.toml` is present — the extension wires up status bar actions and commands on activation.
+- One-click actions from the status bar and Command Palette for:
+  - Initializing a project (`uv init`)
+  - Activating the environment with shell specific activation command e.g. (` source.venv\activate`)
+  - Syncing dependencies (`uv sync`)
+  - Removing the `.venv` directory
+- Cross-shell support with templates for PowerShell, cmd, Git Bash, WSL, Bash, Zsh, and Fish.
+- Sends commands into the active VS Code terminal or creates a terminal when needed.
 
-**Supports 7 major terminal shells out of the box:**  
-PowerShell, Command Prompt (cmd), Git Bash, WSL, Bash, Zsh, and Fish.
+Why this helps:
+- Reduces context switching by running UV commands directly from VS Code UI.
+- Handles shell differences so activation and install commands work across environments.
+- Lightweight — focuses on the most common UV workflows (init, create, activate, sync, delete).
 
 These commands can be accessed from the VSCode command palette:
-![Command Palette](images/Command-Palette-Screenshot.png)
+
+![VSCode Screenshot](images/VSCode-Screenshot.png)
 
 The supported commands are:
 
@@ -100,3 +111,12 @@ Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 ## Author
 
 David Saunders - 2024
+
+## Roadmap
+
+| Feature | What | Why | Priority | Effort |
+|---|---|---:|---:|---:|
+| Auto-set VS Code Python interpreter | When an environment is created or activated, automatically set the workspace interpreter to the .venv Python. | Ensures editor features (linting, run/debug) use the created env without manual steps. | High | Small / Medium |
+| Sync preview & diff | Show a preview of changes (added/updated/removed packages) before running `uv sync`. | Lets users confirm changes before modifying environments. | Medium | Moderate |
+| Dependency graph / tree view | Add a side panel showing installed packages and a dependency tree for quick navigation and inspection. | Improves dependency visibility and debugging. | Medium | Larger |
+| Quick package search & install | Quick-pick UI to search PyPI (or configured index) and install selected packages into the active env. | Speeds up adding packages without leaving VS Code. | Medium | Moderate |

@@ -13,10 +13,9 @@ const {
 
 const {
   initProjectIcon,
-  createEnvIcon,
   syncDepsIcon,
+  activateEnvIcon,
   deleteEnvIcon,
-  activateEnvIcon
 } = require("./statusBarItems");
 
 /**
@@ -82,7 +81,6 @@ function activate(context) {
 
     // Show status bar items initially
     initProjectIcon.displayDefault();
-    createEnvIcon.displayDefault();
     syncDepsIcon.displayDefault();
     deleteEnvIcon.displayDefault();
     activateEnvIcon.displayDefault();
