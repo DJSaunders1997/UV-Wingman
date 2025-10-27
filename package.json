@@ -2,7 +2,7 @@
 	"name": "uv-wingman",
 	"displayName": "UV Wingman",
 	"description": "Help users manage and interact with the python UV package manager.",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"publisher": "DJSaunders1997",
 	"engines": {
 		"vscode": "^1.95.0"
