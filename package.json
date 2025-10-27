@@ -26,7 +26,7 @@
 		"Dependencies",
 		"pyproject.toml"
 	],
-	"preview": true,
+	"preview": false,
 	"activationEvents": [
 		"workspaceContains:pyproject.toml"
 	],
