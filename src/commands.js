@@ -1,7 +1,8 @@
 // This file defines the commands that are available in the command palette.
 
 const vscode = require("vscode");
-const { sendCommandToTerminal } = require("./utils");
+const { sendCommandToTerminal, getFirstWorkspaceFolder } = require("./utils");
+const { waitAndSetInterpreter, getVenvInterpreterPath, setWorkspacePythonInterpreter } = require("./interpreter");
 const { getTerminalCommands } = require("./terminalCommands");
 const { deleteEnvIcon } = require("./statusBarItems");
 
@@ -43,6 +44,15 @@ async function createEnv() {
         sendCommandToTerminal(cmds.createVenv);
         sendCommandToTerminal(cmds.activateVenv);
         vscode.window.showInformationMessage('Created and activated UV environment');
+        
+        // Automatically set the Python interpreter after environment creation
+        const workspaceFolder = getFirstWorkspaceFolder();
+        if (workspaceFolder) {
+            // Fire-and-forget: don't block the command, but set interpreter in background
+            waitAndSetInterpreter(workspaceFolder).catch(err => {
+                console.error('Failed to auto-set interpreter after environment creation:', err);
+            });
+        }
     } catch (error) {
         vscode.window.showErrorMessage("Error creating UV environment");
         console.error(error);
@@ -57,6 +67,14 @@ async function syncDependencies() {
         const cmds = getTerminalCommands();
         sendCommandToTerminal(cmds.syncDeps);
         vscode.window.showInformationMessage('Synced UV dependencies');
+        
+        // Auto-set interpreter after sync (in case environment was just created)
+        const workspaceFolder = getFirstWorkspaceFolder();
+        if (workspaceFolder) {
+            waitAndSetInterpreter(workspaceFolder).catch(err => {
+                console.error('Failed to auto-set interpreter after sync:', err);
+            });
+        }
     } catch (error) {
         vscode.window.showErrorMessage("Error syncing UV dependencies");
         console.error(error);
@@ -71,6 +89,25 @@ async function activateEnv() {
         const cmds = getTerminalCommands();
         sendCommandToTerminal(cmds.activateVenv);
         vscode.window.showInformationMessage("UV environment activated");
+        
+        // Automatically set the Python interpreter when activating
+        const workspaceFolder = getFirstWorkspaceFolder();
+        if (workspaceFolder) {
+            const interpreter = getVenvInterpreterPath(workspaceFolder);
+            if (interpreter) {
+                // Fire-and-forget: don't block the command, but set interpreter in background
+                setWorkspacePythonInterpreter(interpreter).then(success => {
+                    if (success) {
+                        vscode.window.showInformationMessage(
+                            'Python interpreter automatically set to .venv interpreter',
+                            { timeout: 3000 }
+                        );
+                    }
+                }).catch(err => {
+                    console.error('Failed to auto-set interpreter on activation:', err);
+                });
+            }
+        }
     } catch (error) {
         vscode.window.showErrorMessage("Failed to activate UV environment");
         console.error(error);
