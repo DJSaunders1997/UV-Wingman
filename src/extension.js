@@ -40,7 +40,6 @@ function activate(context) {
     // Setup listener to update status bar items when the active file changes
     const listener = vscode.window.onDidChangeActiveTextEditor(() => {
       initProjectIcon.displayDefault();
-      createEnvIcon.displayDefault();
       syncDepsIcon.displayDefault();
       deleteEnvIcon.displayDefault();
       activateEnvIcon.displayDefault();

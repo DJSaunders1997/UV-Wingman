@@ -50,7 +50,7 @@ function getVenvInterpreterPath(workspaceFolder) {
 
 /**
  * Update workspace Python interpreter settings to point to the given interpreter path.
- * Updates both "python.defaultInterpreterPath" and legacy "python.pythonPath" for compatibility.
+ * Uses the modern "python.defaultInterpreterPath" setting.
  */
 async function setWorkspacePythonInterpreter(interpreterPath) {
     if (!interpreterPath) return false;
@@ -68,6 +68,7 @@ async function setWorkspacePythonInterpreter(interpreterPath) {
 
 /**
  * Sets the Python interpreter if the .venv directory exists.
+ * Checks once for the interpreter path - does not poll or wait for it to appear.
  * @param {vscode.WorkspaceFolder} workspaceFolder - The workspace folder to check
  * @returns {Promise<boolean>} True if interpreter was set, false otherwise
  */
