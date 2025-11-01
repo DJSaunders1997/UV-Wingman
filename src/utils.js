@@ -1,6 +1,17 @@
 // This file contains helpful utility functions
 
-const vscode = require("vscode");
+const vscode = require('vscode');
+
+/**
+ * Gets the first workspace folder, or null if no workspace folders exist.
+ * @returns {vscode.WorkspaceFolder | null} The first workspace folder or null
+ */
+function getFirstWorkspaceFolder() {
+    if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
+        return vscode.workspace.workspaceFolders[0];
+    }
+    return null;
+}
 
 /**
  * Sends a command to the terminal.
@@ -23,6 +34,8 @@ function sendCommandToTerminal(command) {
   console.log(`Command '${command}' sent to terminal.`);
 }
 
+
 module.exports = {
   sendCommandToTerminal,
+  getFirstWorkspaceFolder,
 };

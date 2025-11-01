@@ -18,6 +18,9 @@ const {
   deleteEnvIcon,
 } = require("./statusBarItems");
 
+const { getFirstWorkspaceFolder } = require('./utils');
+const { getVenvInterpreterPath, setWorkspacePythonInterpreter } = require('./interpreter');
+
 /**
  * Function that is run on activation of the extension.
  * Main functionality and setup are defined here.
@@ -84,6 +87,16 @@ function activate(context) {
     syncDepsIcon.displayDefault();
     deleteEnvIcon.displayDefault();
     activateEnvIcon.displayDefault();
+
+    // On activation, look for .venv in workspace folders and set interpreter automatically.
+    const workspaceFolder = getFirstWorkspaceFolder();
+    if (workspaceFolder) {
+        const interpreter = getVenvInterpreterPath(workspaceFolder);
+        if (interpreter) {
+            // Fire-and-forget; we don't block activation
+            setWorkspacePythonInterpreter(interpreter).catch(() => { /* ignore */ });
+        }
+    }
 
     console.log('UV Wingman activated successfully');
   });
