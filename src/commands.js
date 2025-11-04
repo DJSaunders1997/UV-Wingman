@@ -65,9 +65,25 @@ async function createEnv() {
 async function syncDependencies() {
     try {
         const cmds = getTerminalCommands();
-        sendCommandToTerminal(cmds.syncDeps);
-        vscode.window.showInformationMessage('Synced UV dependencies');
-        
+        // Offer the user a preview (dry-run) before running actual sync
+        const choice = await vscode.window.showQuickPick(
+            ['Preview changes', 'Run sync now', 'Cancel'],
+            { placeHolder: 'Preview the changes that `uv sync` will perform or run sync now' }
+        );
+
+        if (!choice || choice === 'Cancel') {
+            return;
+        }
+
+        if (choice === 'Preview changes') {
+            // send a dry-run variant of uv sync to the terminal
+            sendCommandToTerminal(`${cmds.syncDeps} --dry-run`);
+            vscode.window.showInformationMessage('Previewing UV sync (dry-run) in terminal');
+        } else {
+            sendCommandToTerminal(cmds.syncDeps);
+            vscode.window.showInformationMessage('Synced UV dependencies');
+        }
+
         // Auto-set interpreter after sync (in case environment was just created)
         const workspaceFolder = getFirstWorkspaceFolder();
         if (workspaceFolder) {
