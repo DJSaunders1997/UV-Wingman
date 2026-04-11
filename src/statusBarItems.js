@@ -44,25 +44,11 @@ class CustomStatusBarItem {
   }
 }
 
-// Create status bar items — VS Code shows same-priority items in reverse
-// creation order, so the last one created appears leftmost.
-// Define right-to-left: deleteEnv first (rightmost), activate last (leftmost).
-const deleteEnvIcon = new CustomStatusBarItem(
-  "$(trashcan) UV Remove",
-  "Delete UV environment",
-  "uv-wingman.deleteEnvironment"
-);
-
-const addPkgIcon = new CustomStatusBarItem(
-  "$(add) UV Add",
-  "Add a package with uv add",
-  "uv-wingman.addPackage"
-);
-
-const syncDepsIcon = new CustomStatusBarItem(
-  "$(sync) UV Sync",
-  "Sync dependencies with pyproject.toml",
-  "uv-wingman.syncDependencies"
+// Create status bar items in left-to-right display order
+const pythonVersionItem = new CustomStatusBarItem(
+  "$(snake) Activate UV: --",
+  "Click to activate UV environment",
+  "uv-wingman.activateEnvironment"
 );
 
 const initProjectIcon = new CustomStatusBarItem(
@@ -71,11 +57,22 @@ const initProjectIcon = new CustomStatusBarItem(
   "uv-wingman.initProject"
 );
 
-// Created last so it appears leftmost, right next to the other UV items
-const pythonVersionItem = new CustomStatusBarItem(
-  "$(snake) Activate UV: --",
-  "Click to activate UV environment",
-  "uv-wingman.activateEnvironment"
+const syncDepsIcon = new CustomStatusBarItem(
+  "$(sync) UV Sync",
+  "Sync dependencies with pyproject.toml",
+  "uv-wingman.syncDependencies"
+);
+
+const addPkgIcon = new CustomStatusBarItem(
+  "$(add) UV Add",
+  "Add a package with uv add",
+  "uv-wingman.addPackage"
+);
+
+const deleteEnvIcon = new CustomStatusBarItem(
+  "$(trashcan) UV Remove",
+  "Delete UV environment",
+  "uv-wingman.deleteEnvironment"
 );
 
 /** All status bar items in display order */
