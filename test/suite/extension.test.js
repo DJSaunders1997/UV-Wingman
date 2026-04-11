@@ -1,15 +1,51 @@
 const assert = require('assert');
 
-// You can import and use all API from the 'vscode' module
-// as well as import your extension to test it
-const vscode = require('vscode');
-// const myExtension = require('../extension');
-
 suite('Extension Test Suite', () => {
-	vscode.window.showInformationMessage('Start all tests.');
 
-	test('Sample test', () => {
-		assert.strictEqual(-1, [1, 2, 3].indexOf(5));
-		assert.strictEqual(-1, [1, 2, 3].indexOf(0));
-	});
+    test('All package.json commands should be registerable', async () => {
+        // Verify the extension's declared commands are valid string IDs
+        const packageJson = require('../../package.json');
+        const declaredCommands = packageJson.contributes.commands.map(c => c.command);
+
+        assert.ok(declaredCommands.length > 0, 'Should have at least one command');
+
+        const expectedCommands = [
+            'uv-wingman.refreshDependencies',
+            'uv-wingman.initProject',
+            'uv-wingman.createEnvironment',
+            'uv-wingman.syncDependencies',
+            'uv-wingman.deleteEnvironment',
+            'uv-wingman.activateEnvironment',
+            'uv-wingman.addPackage',
+            'uv-wingman.removePackage',
+            'uv-wingman.runScript',
+            'uv-wingman.lock',
+        ];
+
+        for (const cmd of expectedCommands) {
+            assert.ok(
+                declaredCommands.includes(cmd),
+                `Command ${cmd} should be declared in package.json`
+            );
+        }
+    });
+
+    test('Package.json should have configuration settings', () => {
+        const packageJson = require('../../package.json');
+        const props = packageJson.contributes.configuration.properties;
+
+        assert.ok(props['uvWingman.envName'], 'Should have envName setting');
+        assert.strictEqual(props['uvWingman.envName'].default, '.venv');
+
+        assert.ok(props['uvWingman.showStatusBarItems'], 'Should have showStatusBarItems setting');
+        assert.strictEqual(props['uvWingman.showStatusBarItems'].default, true);
+
+        assert.ok(props['uvWingman.autoSetInterpreter'], 'Should have autoSetInterpreter setting');
+        assert.strictEqual(props['uvWingman.autoSetInterpreter'].default, true);
+    });
+
+    test('Package.json version should be 2.0.0', () => {
+        const packageJson = require('../../package.json');
+        assert.strictEqual(packageJson.version, '2.0.0');
+    });
 });
