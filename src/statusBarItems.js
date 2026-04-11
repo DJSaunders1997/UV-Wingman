@@ -11,17 +11,11 @@ const { getConfig } = require("./config");
  * Choose symbols from this list https://code.visualstudio.com/api/references/icons-in-labels#icon-listing
  */
 class CustomStatusBarItem {
-  /**
-   * @param {string} defaultText
-   * @param {string} tooltip
-   * @param {string} command
-   * @param {number} [priority=0] Higher priority = further left in the status bar
-   */
-  constructor(defaultText, tooltip, command, priority = 0) {
+  constructor(defaultText, tooltip, command) {
     this.defaultText = defaultText;
     this.loadingText = this.defaultText + " $(loading~spin)";
 
-    this.statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, priority);
+    this.statusBar = vscode.window.createStatusBarItem();
     this.statusBar.text = defaultText;
     this.statusBar.tooltip = tooltip;
     this.statusBar.command = command;
@@ -50,19 +44,9 @@ class CustomStatusBarItem {
   }
 }
 
-// Create custom status bar items
-const initProjectIcon = new CustomStatusBarItem(
-  "$(repo) UV Init",
-  "Initialize new UV project",
-  "uv-wingman.initProject"
-);
-
-const syncDepsIcon = new CustomStatusBarItem(
-  "$(sync) UV Sync",
-  "Sync dependencies with pyproject.toml",
-  "uv-wingman.syncDependencies"
-);
-
+// Create status bar items — VS Code shows same-priority items in reverse
+// creation order, so the last one created appears leftmost.
+// Define right-to-left: deleteEnv first (rightmost), activate last (leftmost).
 const deleteEnvIcon = new CustomStatusBarItem(
   "$(trashcan) UV Remove",
   "Delete UV environment",
@@ -75,13 +59,23 @@ const addPkgIcon = new CustomStatusBarItem(
   "uv-wingman.addPackage"
 );
 
-// Python version item doubles as the activate button — click to activate env
-// Highest priority so it appears leftmost among UV Wingman items
+const syncDepsIcon = new CustomStatusBarItem(
+  "$(sync) UV Sync",
+  "Sync dependencies with pyproject.toml",
+  "uv-wingman.syncDependencies"
+);
+
+const initProjectIcon = new CustomStatusBarItem(
+  "$(repo) UV Init",
+  "Initialize new UV project",
+  "uv-wingman.initProject"
+);
+
+// Created last so it appears leftmost, right next to the other UV items
 const pythonVersionItem = new CustomStatusBarItem(
   "$(snake) Activate UV: --",
   "Click to activate UV environment",
-  "uv-wingman.activateEnvironment",
-  100
+  "uv-wingman.activateEnvironment"
 );
 
 /** All status bar items in display order */
