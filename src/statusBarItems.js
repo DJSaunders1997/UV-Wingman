@@ -71,7 +71,7 @@ const addPkgIcon = new CustomStatusBarItem(
 
 // Python version item doubles as the activate button — click to activate env
 const pythonVersionItem = new CustomStatusBarItem(
-  "$(snake) UV: --",
+  "$(snake) Activate UV: --",
   "Click to activate UV environment",
   "uv-wingman.activateEnvironment"
 );
@@ -110,16 +110,16 @@ function updatePythonVersion() {
     }
 
     if (!fs.existsSync(pythonPath)) {
-      pythonVersionItem.setText('$(snake) UV: No env');
+      pythonVersionItem.setText('$(snake) Activate UV: No env');
       return;
     }
 
     const version = execSync(`"${pythonPath}" --version`, { encoding: 'utf8', timeout: 5000 }).trim();
     // Output is like "Python 3.12.1"
     const short = version.replace('Python ', '');
-    pythonVersionItem.setText(`$(snake) UV: ${short}`);
+    pythonVersionItem.setText(`$(snake) Activate UV: ${short}`);
   } catch {
-    pythonVersionItem.setText('$(snake) UV: No env');
+    pythonVersionItem.setText('$(snake) Activate UV: No env');
   }
 }
 
