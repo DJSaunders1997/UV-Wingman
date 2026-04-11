@@ -57,12 +57,6 @@ const syncDepsIcon = new CustomStatusBarItem(
   "uv-wingman.syncDependencies"
 );
 
-const activateEnvIcon = new CustomStatusBarItem(
-  "$(play) UV Activate",
-  "Activate UV environment",
-  "uv-wingman.activateEnvironment"
-);
-
 const deleteEnvIcon = new CustomStatusBarItem(
   "$(trashcan) UV Remove",
   "Delete UV environment",
@@ -75,14 +69,15 @@ const addPkgIcon = new CustomStatusBarItem(
   "uv-wingman.addPackage"
 );
 
+// Python version item doubles as the activate button — click to activate env
 const pythonVersionItem = new CustomStatusBarItem(
   "$(snake) UV: --",
-  "Python version in active environment",
+  "Click to activate UV environment",
   "uv-wingman.activateEnvironment"
 );
 
 /** All status bar items in display order */
-const allItems = [pythonVersionItem, initProjectIcon, activateEnvIcon, syncDepsIcon, addPkgIcon, deleteEnvIcon];
+const allItems = [pythonVersionItem, initProjectIcon, syncDepsIcon, addPkgIcon, deleteEnvIcon];
 
 function showAllStatusBarItems() {
   for (const item of allItems) {
@@ -131,7 +126,6 @@ function updatePythonVersion() {
 module.exports = {
   initProjectIcon,
   syncDepsIcon,
-  activateEnvIcon,
   deleteEnvIcon,
   addPkgIcon,
   pythonVersionItem,

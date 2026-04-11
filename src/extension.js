@@ -23,8 +23,8 @@ const {
 
 const { getFirstWorkspaceFolder } = require('./utils');
 const { getVenvInterpreterPath, setWorkspacePythonInterpreter } = require('./interpreter');
-const { DependencyProvider } = require('./dependencyTree');
 const { getConfig } = require('./config');
+const { registerDocumentLinks } = require('./documentLinks');
 
 /**
  * Checks whether the `uv` CLI is available on PATH.
@@ -129,25 +129,8 @@ function activate(context) {
 
     console.log('UV Wingman activated successfully');
 
-    // Register dependency tree view
-    try {
-      const depProvider = new DependencyProvider();
-      vscode.window.registerTreeDataProvider('uvWingman.dependencies', depProvider);
-      const refreshCmd = vscode.commands.registerCommand('uv-wingman.refreshDependencies', () => depProvider.refresh());
-      context.subscriptions.push(refreshCmd);
-
-      // Watch pyproject.toml for changes and auto-refresh the tree
-      const watcher = vscode.workspace.createFileSystemWatcher('**/pyproject.toml');
-      watcher.onDidChange(() => depProvider.refresh());
-      watcher.onDidCreate(() => depProvider.refresh());
-      watcher.onDidDelete(() => depProvider.refresh());
-      context.subscriptions.push(watcher);
-
-      // Expose depProvider for commands that need to refresh
-      global._uvWingmanDepProvider = depProvider;
-    } catch (err) {
-      console.error('Failed to register dependency tree view', err);
-    }
+    // Register clickable PyPI links in pyproject.toml and uv.lock
+    registerDocumentLinks(context);
   });
 }
 

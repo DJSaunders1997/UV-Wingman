@@ -151,13 +151,7 @@ async function addPackage() {
         sendCommandToTerminal(`uv add ${input}`);
         vscode.window.showInformationMessage(`Adding ${input}...`);
 
-        // Refresh dependency tree after a short delay
-        setTimeout(() => {
-            if (global._uvWingmanDepProvider) {
-                global._uvWingmanDepProvider.refresh();
-            }
-            updatePythonVersion();
-        }, 3000);
+        setTimeout(() => updatePythonVersion(), 3000);
     } catch (error) {
         vscode.window.showErrorMessage("Error adding package");
         console.error(error);
@@ -168,35 +162,22 @@ async function addPackage() {
  * Removes a package from the project using uv remove.
  * Can be invoked from command palette (shows QuickPick) or tree context menu (receives item directly).
  */
-async function removePackage(item) {
+async function removePackage() {
     try {
-        let packageName;
-
-        if (item && item.label) {
-            // Invoked from tree context menu
-            packageName = item.label;
-        } else {
-            // Invoked from command palette -- show QuickPick of current deps
-            const deps = readDependencyNames();
-            if (deps.length === 0) {
-                vscode.window.showInformationMessage('No dependencies found in pyproject.toml');
-                return;
-            }
-            packageName = await vscode.window.showQuickPick(deps, {
-                placeHolder: 'Select package to remove',
-            });
+        const deps = readDependencyNames();
+        if (deps.length === 0) {
+            vscode.window.showInformationMessage('No dependencies found in pyproject.toml');
+            return;
         }
+        const packageName = await vscode.window.showQuickPick(deps, {
+            placeHolder: 'Select package to remove',
+        });
 
         if (!packageName) return;
 
         sendCommandToTerminal(`uv remove ${packageName}`);
         vscode.window.showInformationMessage(`Removing ${packageName}...`);
 
-        setTimeout(() => {
-            if (global._uvWingmanDepProvider) {
-                global._uvWingmanDepProvider.refresh();
-            }
-        }, 3000);
     } catch (error) {
         vscode.window.showErrorMessage("Error removing package");
         console.error(error);

@@ -40,21 +40,15 @@ UV Wingman activates automatically when a `pyproject.toml` is detected in your w
 |---------|--------------|-------------|
 | `uv run <script>` | **UV Wingman: Run Script** | Pick and run a script from `[project.scripts]` |
 
-### Dependency Tree View
+### Inline PyPI Links
 
-The **UV Dependencies** panel in the Explorer sidebar shows:
-- Main dependencies from `[project.dependencies]` with version specifiers
-- Optional dependency groups from `[project.optional-dependencies]`
-- Dependency groups from `[dependency-groups]` (PEP 735)
-- Click any package to open it on PyPI
-- Right-click to remove a package
-- Auto-refreshes when `pyproject.toml` changes
+Package names in `pyproject.toml` and `uv.lock` are **clickable hyperlinks** that open the package on PyPI. No separate panel needed -- just Ctrl/Cmd+click any dependency name in the files you're already editing.
 
 ### Status Bar
 
-Quick-access buttons in the status bar for common actions:
-- Python version display (from active environment)
-- Init, Activate, Sync, Add Package, Remove Environment
+Quick-access buttons in the status bar:
+- **Python version** (click to activate environment) -- shows "No env" when missing
+- Init, Sync, Add Package, Remove Environment
 
 ### Smart Defaults
 
@@ -125,7 +119,7 @@ If your project uses `venv` or `env` instead of `.venv`, set `uvWingman.envName`
 | `src/terminalCommands.js` | Shell-specific command templates and terminal detection |
 | `src/statusBarItems.js` | Status bar UI items and Python version display |
 | `src/interpreter.js` | Python interpreter detection and workspace setting |
-| `src/dependencyTree.js` | Explorer tree view for dependencies |
+| `src/documentLinks.js` | Inline PyPI hyperlinks for pyproject.toml and uv.lock |
 | `src/config.js` | Centralized settings reader |
 | `src/utils.js` | Terminal and workspace utilities |
 

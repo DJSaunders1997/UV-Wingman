@@ -10,7 +10,6 @@ suite('Extension Test Suite', () => {
         assert.ok(declaredCommands.length > 0, 'Should have at least one command');
 
         const expectedCommands = [
-            'uv-wingman.refreshDependencies',
             'uv-wingman.initProject',
             'uv-wingman.createEnvironment',
             'uv-wingman.syncDependencies',

@@ -34,10 +34,6 @@
 	"contributes": {
 		"commands": [
 			{
-				"command": "uv-wingman.refreshDependencies",
-				"title": "UV Wingman: Refresh Dependencies"
-			},
-			{
 				"command": "uv-wingman.initProject",
 				"title": "UV Wingman: Initialize UV Project"
 			},
@@ -74,15 +70,6 @@
 				"title": "UV Wingman: Lock Dependencies"
 			}
 		],
-		"menus": {
-			"view/item/context": [
-				{
-					"command": "uv-wingman.removePackage",
-					"when": "viewItem == dependencyItem",
-					"group": "inline"
-				}
-			]
-		},
 		"configuration": {
 			"title": "UV Wingman",
 			"properties": {
@@ -102,14 +89,6 @@
 					"description": "Automatically set the VS Code Python interpreter when an environment is created or activated"
 				}
 			}
-		},
-		"views": {
-			"explorer": [
-				{
-					"id": "uvWingman.dependencies",
-					"name": "UV Dependencies"
-				}
-			]
 		}
 	},
 	"scripts": {
