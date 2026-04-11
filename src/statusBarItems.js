@@ -11,11 +11,11 @@ const { getConfig } = require("./config");
  * Choose symbols from this list https://code.visualstudio.com/api/references/icons-in-labels#icon-listing
  */
 class CustomStatusBarItem {
-  constructor(defaultText, tooltip, command) {
+  constructor(defaultText, tooltip, command, priority) {
     this.defaultText = defaultText;
     this.loadingText = this.defaultText + " $(loading~spin)";
 
-    this.statusBar = vscode.window.createStatusBarItem();
+    this.statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, priority);
     this.statusBar.text = defaultText;
     this.statusBar.tooltip = tooltip;
     this.statusBar.command = command;
@@ -44,35 +44,41 @@ class CustomStatusBarItem {
   }
 }
 
-// Create status bar items in left-to-right display order
+// Priorities control left-to-right order: higher = further left.
+// All values are close together so the items stay grouped.
 const pythonVersionItem = new CustomStatusBarItem(
   "$(snake) Activate UV: --",
   "Click to activate UV environment",
-  "uv-wingman.activateEnvironment"
+  "uv-wingman.activateEnvironment",
+  5
 );
 
 const initProjectIcon = new CustomStatusBarItem(
   "$(repo) UV Init",
   "Initialize new UV project",
-  "uv-wingman.initProject"
+  "uv-wingman.initProject",
+  4
 );
 
 const syncDepsIcon = new CustomStatusBarItem(
   "$(sync) UV Sync",
   "Sync dependencies with pyproject.toml",
-  "uv-wingman.syncDependencies"
+  "uv-wingman.syncDependencies",
+  3
 );
 
 const addPkgIcon = new CustomStatusBarItem(
   "$(add) UV Add",
   "Add a package with uv add",
-  "uv-wingman.addPackage"
+  "uv-wingman.addPackage",
+  2
 );
 
 const deleteEnvIcon = new CustomStatusBarItem(
   "$(trashcan) UV Remove",
   "Delete UV environment",
-  "uv-wingman.deleteEnvironment"
+  "uv-wingman.deleteEnvironment",
+  1
 );
 
 /** All status bar items in display order */
