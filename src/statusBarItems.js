@@ -11,11 +11,17 @@ const { getConfig } = require("./config");
  * Choose symbols from this list https://code.visualstudio.com/api/references/icons-in-labels#icon-listing
  */
 class CustomStatusBarItem {
-  constructor(defaultText, tooltip, command) {
+  /**
+   * @param {string} defaultText
+   * @param {string} tooltip
+   * @param {string} command
+   * @param {number} [priority=0] Higher priority = further left in the status bar
+   */
+  constructor(defaultText, tooltip, command, priority = 0) {
     this.defaultText = defaultText;
     this.loadingText = this.defaultText + " $(loading~spin)";
 
-    this.statusBar = vscode.window.createStatusBarItem();
+    this.statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, priority);
     this.statusBar.text = defaultText;
     this.statusBar.tooltip = tooltip;
     this.statusBar.command = command;
@@ -70,10 +76,12 @@ const addPkgIcon = new CustomStatusBarItem(
 );
 
 // Python version item doubles as the activate button — click to activate env
+// Highest priority so it appears leftmost among UV Wingman items
 const pythonVersionItem = new CustomStatusBarItem(
   "$(snake) Activate UV: --",
   "Click to activate UV environment",
-  "uv-wingman.activateEnvironment"
+  "uv-wingman.activateEnvironment",
+  100
 );
 
 /** All status bar items in display order */
