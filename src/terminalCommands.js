@@ -1,47 +1,74 @@
 const vscode = require("vscode");
+const { getConfig } = require("./config");
 
 /**
- * Shared command templates for POSIX-like shells (bash, zsh, wsl, gitbash, default).
+ * Builds command templates for POSIX-like shells (bash, zsh, wsl, gitbash, default).
+ * @param {string} envName - Virtual environment directory name
  */
-const posixCommands = {
-    activateVenv: 'source .venv/bin/activate',
-    removeDir: 'rm -rf .venv',
-    initProject: 'uv init',
-    syncDeps: 'uv sync',
-};
-
-/**
- * Fish shell has a unique activate command.
- */
-const fishCommands = {
-    ...posixCommands,
-    activateVenv: 'source .venv/bin/activate.fish',
-};
-
-/**
- * Terminal command templates for different shells.
- */
-const TerminalCommandSets = {
-    powershell: {
-        activateVenv: '.\\.venv\\Scripts\\Activate.ps1',
-        removeDir: 'Remove-Item -Recurse -Force .venv',
+function getPosixCommands(envName) {
+    return {
+        activateVenv: `source ${envName}/bin/activate`,
+        removeDir: `rm -rf ${envName}`,
         initProject: 'uv init',
         syncDeps: 'uv sync',
-        createVenv: 'uv pip install .',
-    },
-    cmd: {
-        activateVenv: '.\\.venv\\Scripts\\activate.bat',
-        removeDir: 'rmdir /s /q .venv',
+        createVenv: 'uv venv',
+        lock: 'uv lock',
+    };
+}
+
+/**
+ * Builds command templates for Fish shell (unique activate path).
+ * @param {string} envName - Virtual environment directory name
+ */
+function getFishCommands(envName) {
+    return {
+        ...getPosixCommands(envName),
+        activateVenv: `source ${envName}/bin/activate.fish`,
+    };
+}
+
+/**
+ * Builds command templates for PowerShell.
+ * @param {string} envName - Virtual environment directory name
+ */
+function getPowershellCommands(envName) {
+    return {
+        activateVenv: `.\\${envName}\\Scripts\\Activate.ps1`,
+        removeDir: `Remove-Item -Recurse -Force ${envName}`,
         initProject: 'uv init',
         syncDeps: 'uv sync',
-        createVenv: 'uv pip install .',
-    },
-    gitbash: posixCommands,
-    wsl: posixCommands,
-    bash: posixCommands,
-    zsh: posixCommands,
-    fish: fishCommands,
-    default: posixCommands,
+        createVenv: 'uv venv',
+        lock: 'uv lock',
+    };
+}
+
+/**
+ * Builds command templates for Windows Command Prompt.
+ * @param {string} envName - Virtual environment directory name
+ */
+function getCmdCommands(envName) {
+    return {
+        activateVenv: `.\\${envName}\\Scripts\\activate.bat`,
+        removeDir: `rmdir /s /q ${envName}`,
+        initProject: 'uv init',
+        syncDeps: 'uv sync',
+        createVenv: 'uv venv',
+        lock: 'uv lock',
+    };
+}
+
+/**
+ * Terminal command set builders keyed by shell type.
+ */
+const commandBuilders = {
+    powershell: getPowershellCommands,
+    cmd: getCmdCommands,
+    gitbash: getPosixCommands,
+    wsl: getPosixCommands,
+    bash: getPosixCommands,
+    zsh: getPosixCommands,
+    fish: getFishCommands,
+    default: getPosixCommands,
 };
 
 /**
@@ -63,13 +90,16 @@ function detectTerminalType() {
 }
 
 /**
- * Gets the command set for the current terminal.
+ * Gets the command set for the current terminal, using the configured env name.
  */
 function getTerminalCommands() {
+    const { envName } = getConfig();
     const type = detectTerminalType();
-    return TerminalCommandSets[type] || TerminalCommandSets.default;
+    const builder = commandBuilders[type] || commandBuilders.default;
+    return builder(envName);
 }
 
 module.exports = {
     getTerminalCommands,
+    detectTerminalType,
 };
