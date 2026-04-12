@@ -68,22 +68,18 @@
 			{
 				"command": "uv-wingman.lock",
 				"title": "UV Wingman: Lock Dependencies"
+			},
+			{
+				"command": "uv-wingman.visualiseDependencies",
+				"title": "UV Wingman: Visualise Dependencies"
 			}
 		],
-		"views": {
-			"explorer": [
-				{
-					"id": "uvWingmanDependencies",
-					"name": "UV Dependencies"
-				}
-			]
-		},
 		"menus": {
-			"view/item/context": [
+			"editor/title": [
 				{
-					"command": "uv-wingman.removePackage",
-					"when": "view == uvWingmanDependencies && viewItem == dependencyItem",
-					"group": "inline"
+					"command": "uv-wingman.visualiseDependencies",
+					"when": "resourceFilename == 'uv.lock' || resourceFilename == 'pyproject.toml'",
+					"group": "navigation"
 				}
 			]
 		},
@@ -131,6 +127,7 @@
 	},
 	"homepage": "https://github.com/DJSaunders1997/uv-Wingman#readme",
 	"dependencies": {
-		"@iarna/toml": "^2.2.5"
+		"@iarna/toml": "^2.2.5",
+		"d3": "^7.9.0"
 	}
 }

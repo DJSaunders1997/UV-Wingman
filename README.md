@@ -44,6 +44,17 @@ UV Wingman activates automatically when a `pyproject.toml` is detected in your w
 
 Package names in `pyproject.toml` and `uv.lock` are **clickable hyperlinks** that open the package on PyPI. No separate panel needed -- just Ctrl/Cmd+click any dependency name in the files you're already editing.
 
+### Inline Version Hints
+
+Dependencies in `pyproject.toml` show the **latest PyPI version** as greyed-out text at the end of each line (similar to GitLens inline blame). Color-coded freshness indicators show whether your specifier allows the latest version or is pinned behind. Hover over any dependency for a description and PyPI link.
+
+### Dependency Graph
+
+Open `uv.lock` and click the **Visualise Dependencies** button in the editor toolbar to see an interactive dependency graph. The graph shows your full resolved dependency tree with:
+- **Color-coded nodes**: project root (yellow), direct dependencies (blue), transitive dependencies (green)
+- **Hierarchical layout**: dependencies flow top-to-bottom from your project root
+- **Interactivity**: zoom, pan, drag nodes, hover to highlight connections, click for package details and PyPI links
+
 ### Status Bar
 
 Quick-access buttons in the status bar:
