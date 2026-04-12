@@ -81,8 +81,8 @@ const deleteEnvIcon = new CustomStatusBarItem(
   1
 );
 
-/** All status bar items in display order */
-const allItems = [pythonVersionItem, initProjectIcon, syncDepsIcon, addPkgIcon, deleteEnvIcon];
+/** All status bar items in display order (excludes initProjectIcon, which is shown only when no pyproject.toml exists) */
+const allItems = [pythonVersionItem, syncDepsIcon, addPkgIcon, deleteEnvIcon];
 
 function showAllStatusBarItems() {
   for (const item of allItems) {

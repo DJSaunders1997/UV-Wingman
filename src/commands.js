@@ -188,6 +188,7 @@ async function removePackage() {
  * Reads dependency names from pyproject.toml for QuickPick.
  */
 function readDependencyNames() {
+    const { parsePyprojectDependencies } = require('./tomlParser');
     const folder = getFirstWorkspaceFolder();
     if (!folder) return [];
 
@@ -196,22 +197,8 @@ function readDependencyNames() {
 
     try {
         const text = fs.readFileSync(pyproject, 'utf8');
-        const projectIndex = text.indexOf('[project]');
-        if (projectIndex === -1) return [];
-
-        const projectSlice = text.slice(projectIndex);
-        const match = projectSlice.match(/dependencies\s*=\s*\[((?:.|\n)*?)\]/m);
-        if (!match || !match[1]) return [];
-
-        const names = [];
-        const depRegex = /"([^"]+)"|'([^']+)'/g;
-        let m;
-        while ((m = depRegex.exec(match[1])) !== null) {
-            const raw = m[1] || m[2];
-            const name = raw.split(/\s*(?:>=|==|<=|~=|!=|>|<|\[)/)[0];
-            if (name) names.push(name);
-        }
-        return names;
+        const { main } = parsePyprojectDependencies(text);
+        return main.map(d => d.name);
     } catch {
         return [];
     }
@@ -236,8 +223,8 @@ async function runScript() {
 
         const text = fs.readFileSync(pyproject, 'utf8');
 
-        // Parse [project.scripts] section
-        const scripts = parseTomlSection(text, '[project.scripts]');
+        const { parsePyprojectScripts } = require('./tomlParser');
+        const scripts = parsePyprojectScripts(text);
         if (scripts.length === 0) {
             vscode.window.showInformationMessage('No scripts found in pyproject.toml [project.scripts]');
             return;
@@ -254,30 +241,6 @@ async function runScript() {
         vscode.window.showErrorMessage("Error running script");
         console.error(error);
     }
-}
-
-/**
- * Parses key names from a TOML section like [project.scripts].
- */
-function parseTomlSection(text, sectionHeader) {
-    const idx = text.indexOf(sectionHeader);
-    if (idx === -1) return [];
-
-    const afterHeader = text.slice(idx + sectionHeader.length);
-    const names = [];
-    const lines = afterHeader.split('\n');
-
-    for (const line of lines) {
-        const trimmed = line.trim();
-        if (trimmed.startsWith('[')) break; // next section
-        if (trimmed === '' || trimmed.startsWith('#')) continue;
-
-        const eqIdx = trimmed.indexOf('=');
-        if (eqIdx > 0) {
-            names.push(trimmed.slice(0, eqIdx).trim());
-        }
-    }
-    return names;
 }
 
 /**

@@ -114,5 +114,6 @@
 	},
 	"homepage": "https://github.com/DJSaunders1997/uv-Wingman#readme",
 	"dependencies": {
+		"@iarna/toml": "^2.2.5"
 	}
 }
