@@ -4,9 +4,11 @@ const fs = require('fs');
 const path = require('path');
 const vscode = require('vscode');
 const { getFirstWorkspaceFolder } = require('./utils');
+const { getConfig } = require('./config');
 
 /**
- * Return the .venv python interpreter path for the given workspace folder (or null).
+ * Return the Python interpreter path for the configured env directory (or null).
+ * Uses the uvWingman.envName setting to determine the env folder.
  */
 function getVenvInterpreterPath(workspaceFolder) {
     let folder = workspaceFolder;
@@ -18,27 +20,22 @@ function getVenvInterpreterPath(workspaceFolder) {
     }
 
     const base = folder.uri.fsPath;
+    const { envName } = getConfig();
 
-    // Build a list of file paths to check for the python executable inside .venv.
     let candidates;
 
-    // On Windows virtualenv python is usually under .venv\Scripts.
-    // We check both python.exe and a plain 'python' in case of different setups.
     if (process.platform === 'win32') {
       candidates = [
-        path.join(base, '.venv', 'Scripts', 'python.exe'),
-        path.join(base, '.venv', 'Scripts', 'python')
+        path.join(base, envName, 'Scripts', 'python.exe'),
+        path.join(base, envName, 'Scripts', 'python')
       ];
     } else {
-      // On macOS/Linux it's usually under .venv/bin.
-      // Check both 'python' and 'python3' so we handle venvs created with different python versions.
       candidates = [
-        path.join(base, '.venv', 'bin', 'python'),
-        path.join(base, '.venv', 'bin', 'python3')
+        path.join(base, envName, 'bin', 'python'),
+        path.join(base, envName, 'bin', 'python3')
       ];
     }
 
-    // Return the first existing candidate.
     for (const p of candidates) {
         if (fs.existsSync(p)) {
             return p;
@@ -67,24 +64,27 @@ async function setWorkspacePythonInterpreter(interpreterPath) {
 }
 
 /**
- * Sets the Python interpreter if the .venv directory exists.
- * Checks once for the interpreter path - does not poll or wait for it to appear.
+ * Polls for the .venv Python interpreter and sets it once found.
+ * Retries up to maxAttempts times with intervalMs between each check,
+ * because terminal commands (uv venv, uv sync) run asynchronously.
  * @param {vscode.WorkspaceFolder} workspaceFolder - The workspace folder to check
+ * @param {number} [maxAttempts=15] - Maximum number of polling attempts
+ * @param {number} [intervalMs=1000] - Milliseconds between attempts
  * @returns {Promise<boolean>} True if interpreter was set, false otherwise
  */
-async function waitAndSetInterpreter(workspaceFolder) {
-    const interpreter = getVenvInterpreterPath(workspaceFolder);
-    if (interpreter) {
-        const success = await setWorkspacePythonInterpreter(interpreter);
-        if (success) {
-            vscode.window.showInformationMessage(
-                `Python interpreter automatically set to .venv interpreter`,
-                { timeout: 3000 }
-            );
-            return true;
+async function waitAndSetInterpreter(workspaceFolder, maxAttempts = 15, intervalMs = 1000) {
+    for (let i = 0; i < maxAttempts; i++) {
+        const interpreter = getVenvInterpreterPath(workspaceFolder);
+        if (interpreter) {
+            const success = await setWorkspacePythonInterpreter(interpreter);
+            if (success) {
+                return true;
+            }
+            return false;
         }
-        return false;
+        await new Promise(resolve => setTimeout(resolve, intervalMs));
     }
+    console.warn('waitAndSetInterpreter: interpreter not found after polling');
     return false;
 }
 

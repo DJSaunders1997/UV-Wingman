@@ -20,6 +20,12 @@ function getFirstWorkspaceFolder() {
  * @param {string} command Command to send to the terminal
  */
 function sendCommandToTerminal(command) {
+  if (!command) {
+    vscode.window.showErrorMessage('UV Wingman: Command not available for this terminal type.');
+    console.error('sendCommandToTerminal called with undefined/null command');
+    return;
+  }
+
   let terminal = vscode.window.activeTerminal;
 
   if (!terminal) {

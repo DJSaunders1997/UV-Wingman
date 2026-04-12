@@ -10,99 +10,100 @@
 [![Downloads](https://vsmarketplacebadges.dev/downloads-short/djsaunders1997.uv-wingman.png?style=for-the-badge&colorA=252525&colorB=8A2BE2)](https://marketplace.visualstudio.com/items?itemName=djsaunders1997.uv-wingman)
 [![Ratings](https://vsmarketplacebadges.dev/rating-short/djsaunders1997.uv-wingman.png?style=for-the-badge&colorA=252525&colorB=8A2BE2)](https://marketplace.visualstudio.com/items?itemName=djsaunders1997.uv-wingman)
 
-This is the README for the extension [UV Wingman](https://marketplace.visualstudio.com/items?itemName=DJSaunders19997.uv-wingman).
+**UV Wingman** brings [uv](https://docs.astral.sh/uv/) package management into VS Code so you can manage Python environments without leaving your editor.
 
-This extension aims to help VSCode users manage and interact with UV environments.
-UV Wingman aims to add QoL improvements that help programmers use environments without having to memorize all of the UV commands.
+## Overview
+
+![Overview Gif](images/overview.gif)
 
 ## Features
 
-UV Wingman detects a pyproject.toml in your workspace and exposes common UV package-manager tasks through both the status bar and the Command Palette so you can manage environments without memorizing commands.
+Activates automatically when `pyproject.toml` is detected in your workspace root.
 
-Key capabilities:
-- Automatic activation when a `pyproject.toml` is present — the extension wires up status bar actions and commands on activation.
-- One-click actions from the status bar and Command Palette for:
-  - Initializing a project (`uv init`)
-  - Activating the environment with shell specific activation command e.g. (` source.venv\activate`)
-  - Syncing dependencies (`uv sync`)
-  - Removing the `.venv` directory
-- Cross-shell support with templates for PowerShell, cmd, Git Bash, WSL, Bash, Zsh, and Fish.
-- Sends commands into the active VS Code terminal or creates a terminal when needed.
+### Status Bar
 
-Why this helps:
-- Reduces context switching by running UV commands directly from VS Code UI.
-- Handles shell differences so activation and install commands work across environments.
-- Lightweight — focuses on the most common UV workflows (init, create, activate, sync, delete).
+Quick-access buttons for common workflows -- no need to open the Command Palette or terminal.
 
-These commands can be accessed from the VSCode command palette:
+- **Python version** (click to activate environment) -- shows "No env" when missing
+- Sync, Add Package, Delete Environment
+- **Init** button appears only when no `pyproject.toml` exists yet
 
-![VSCode Screenshot](images/VSCode-Screenshot.png)
+![Status bar](images/status-bar-items.png)
 
-The supported commands are:
+### Commands
 
-### Project Initialization
-- **Command:** `uv init`
-- **VS Code Command Palette:** `>UV Wingman: Initialize UV Project`
-- **Description:** Creates a new UV project in the current directory
+All commands are available via the Command Palette (`Ctrl+Shift+P`).
 
-### Creating Environments 
-- **Command:** `uv pip install .`
-- **VS Code Command Palette:** `>UV Wingman: Create Environment from pyproject.toml`
-- **Description:** Creates a new virtual environment and installs dependencies
+| Palette Title | Description |
+|--------------|-------------|
+| **Initialize UV Project** | Scaffold a new UV project (`uv init`) |
+| **Create Environment from pyproject.toml** | Create and activate a virtual environment |
+| **Activate UV Environment** | Activate the environment (shell-aware) |
+| **Sync Dependencies with pyproject.toml** | Sync with optional dry-run preview |
+| **Lock Dependencies** | Update the lock file |
+| **Delete Environment** | Remove the virtual environment (with confirmation) |
+| **Add Package** | Add a package via input box |
+| **Remove Package** | Remove a package via quick-pick list |
+| **Run Script** | Pick and run a script from `[project.scripts]` |
+| **Visualise Dependencies** | Open interactive dependency graph |
 
-### Activating Environments
-- **Command:** `source .venv/bin/activate` (or shell equivalent)
-- **VS Code Command Palette:** `>UV Wingman: Activate UV Environment`
-- **Description:** Activates the UV virtual environment
+### Inline PyPI Links
 
-### Syncing Dependencies
-- **Command:** `uv sync`
-- **VS Code Command Palette:** `>UV Wingman: Sync Dependencies with pyproject.toml`
-- **Description:** Updates environment to match pyproject.toml dependencies
+Package names in `pyproject.toml` and `uv.lock` are **clickable hyperlinks** to PyPI. Just Ctrl/Cmd+click any dependency name.
 
-### Deleting Environments
-- **Command:** Removes `.venv` directory
-- **VS Code Command Palette:** `>UV Wingman: Delete UV Environment`
-- **Description:** Deletes the UV virtual environment
+![Inline PyPI links](images/pypi-links.png)
 
-## Example pyproject.toml
-```toml
-[project]
-name = "your-project"
-version = "0.1.0"
-description = "Your project description"
-requires-python = ">=3.12"
-dependencies = [
-    "package1>=1.0",
-    "package2>=2.0",
-]
-```
+### Inline Version Hints
 
-## Project Structure
+Dependencies in `pyproject.toml` show the **latest PyPI version** as greyed-out text at the end of each line. Hover for a description and PyPI link.
 
-- **src/commands.js**  
-  Implements all command palette actions and UV operations.
+- Green "latest: X.Y.Z" -- your specifier allows the latest version
+- Yellow "newer available: X.Y.Z" -- a newer version exists that your specifier blocks
 
-- **src/extension.js**  
-  Main entry point that activates when a pyproject.toml is found.
+![Version hints](images/pyproject-toml-latest-versions.png)
 
-- **src/statusBarItems.js**  
-  Manages the status bar items for quick access to UV commands.
+### Dependency Graph
 
-- **src/utils.js**  
-  Provides utility functions for terminal operations.
+Open `uv.lock` or `pyproject.toml` and click **UV Wingman: Visualise Dependencies** in the editor title menu to see an interactive dependency graph.
 
-- **src/terminalCommands.js**  
-  Handles shell-specific command templates and terminal detection.
+- **Colour-coded nodes**: root (yellow), direct (blue), transitive (green)
+- **Interactivity**: zoom, pan, drag, hover to highlight, click for details and PyPI links
 
-## Release Notes
+![Dependency graph](images/dependency-graph.png)
 
-See [CHANGELOG](CHANGELOG.md) for more information.
+### Smart Defaults
+
+- **Auto interpreter**: Sets the VS Code Python interpreter after create/activate/sync
+- **Shell detection**: Correct commands for PowerShell, cmd, Git Bash, WSL, Bash, Zsh, and Fish
+- **uv availability check**: Warns if `uv` is not installed, with a link to install it
+
+## Settings
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `uvWingman.envName` | `.venv` | Virtual environment directory name |
+| `uvWingman.showStatusBarItems` | `true` | Show/hide status bar buttons |
+| `uvWingman.autoSetInterpreter` | `true` | Auto-set Python interpreter on env create/activate |
+
+## Troubleshooting
+
+- **Extension not activating?** Requires `pyproject.toml` in the workspace root. Open the project directory directly in VS Code.
+- **`uv` not found?** Install via the [official guide](https://docs.astral.sh/uv/getting-started/installation/) and restart VS Code.
+- **Custom env name?** Set `uvWingman.envName` to `venv` or `env` in your workspace settings.
+
+## Future Ideas
+
+- **Monorepo / subdirectory support**: Currently expects `pyproject.toml` in the workspace root.
+- **Inline version hints in uv.lock**: Freshness indicators for locked versions, not just hover tooltips.
+- **Custom PyPI index support**: Private package index for version lookups.
 
 ## Contributing
 
-All contributions are welcome! 
-Please feel free to fork the repository and create a pull request.
+All contributions are welcome! Please feel free to fork the repository and create a pull request.
+
+## Release Notes
+
+See [CHANGELOG](CHANGELOG.md) for full version history.
 
 ## License
 
@@ -110,13 +111,4 @@ Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 
 ## Author
 
-David Saunders - 2024
-
-## Roadmap
-
-| Feature | What | Why | Priority | Effort |
-|---|---|---:|---:|---:|
-| Auto-set VS Code Python interpreter | When an environment is created or activated, automatically set the workspace interpreter to the .venv Python. | Ensures editor features (linting, run/debug) use the created env without manual steps. | High | Small / Medium |
-| Sync preview & diff | Show a preview of changes (added/updated/removed packages) before running `uv sync`. | Lets users confirm changes before modifying environments. | Medium | Moderate |
-| Dependency graph / tree view | Add a side panel showing installed packages and a dependency tree for quick navigation and inspection. | Improves dependency visibility and debugging. | Medium | Larger |
-| Quick package search & install | Quick-pick UI to search PyPI (or configured index) and install selected packages into the active env. | Speeds up adding packages without leaving VS Code. | Medium | Moderate |
+David Saunders - 2024-2026

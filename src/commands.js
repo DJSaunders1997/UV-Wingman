@@ -1,107 +1,151 @@
 // This file defines the commands that are available in the command palette.
 
 const vscode = require("vscode");
+const fs = require("fs");
+const path = require("path");
 const { sendCommandToTerminal, getFirstWorkspaceFolder } = require("./utils");
 const { waitAndSetInterpreter } = require("./interpreter");
 const { getTerminalCommands } = require("./terminalCommands");
-const { deleteEnvIcon } = require("./statusBarItems");
+const { deleteEnvIcon, updatePythonVersion } = require("./statusBarItems");
+const { getConfig } = require("./config");
+const { parsePyprojectDependencies, parsePyprojectScripts } = require('./tomlParser');
 
 /**
- * Deletes a UV environment by removing the .venv directory.
+ * Fire-and-forget: sets the workspace Python interpreter if enabled in config.
  */
+function tryAutoSetInterpreter() {
+    if (!getConfig().autoSetInterpreter) return;
+    const folder = getFirstWorkspaceFolder();
+    if (folder) {
+        waitAndSetInterpreter(folder).catch(() => {});
+    }
+}
+
 async function removeEnv() {
-    try {
-        const cmds = getTerminalCommands();
-        vscode.window.showInformationMessage("Deleting UV environment...");
-        sendCommandToTerminal(cmds.removeDir);
-        deleteEnvIcon.displayDefault();
-    } catch (error) {
-        vscode.window.showErrorMessage("Error deleting environment");
-        console.error(error);
-    }
+    const confirm = await vscode.window.showWarningMessage(
+        'Are you sure you want to delete the virtual environment? This cannot be undone.',
+        { modal: true },
+        'Delete'
+    );
+    if (confirm !== 'Delete') return;
+
+    const cmds = getTerminalCommands();
+    sendCommandToTerminal(cmds.removeDir);
+    deleteEnvIcon.displayDefault();
+    setTimeout(() => updatePythonVersion(), 2000);
 }
 
-/**
- * Initializes a new UV project.
- */
-async function initProject() {
-    try {
-        const cmds = getTerminalCommands();
-        sendCommandToTerminal(cmds.initProject);
-        vscode.window.showInformationMessage('Initialized UV project');
-    } catch (error) {
-        vscode.window.showErrorMessage("Error initializing UV project");
-        console.error(error);
-    }
+function initProject() {
+    const cmds = getTerminalCommands();
+    sendCommandToTerminal(cmds.initProject);
 }
 
-/**
- * Creates and activates a new UV environment.
- */
-async function createEnv() {
-    try {
-        const cmds = getTerminalCommands();
-        sendCommandToTerminal(cmds.createVenv);
-        sendCommandToTerminal(cmds.activateVenv);
-        vscode.window.showInformationMessage('Created and activated UV environment');
-        
-        // Automatically set the Python interpreter after environment creation
-        const workspaceFolder = getFirstWorkspaceFolder();
-        if (workspaceFolder) {
-            // Fire-and-forget: don't block the command, but set interpreter in background
-            waitAndSetInterpreter(workspaceFolder).catch(err => {
-                console.error('Failed to auto-set interpreter after environment creation:', err);
-            });
-        }
-    } catch (error) {
-        vscode.window.showErrorMessage("Error creating UV environment");
-        console.error(error);
-    }
+function createEnv() {
+    const cmds = getTerminalCommands();
+    sendCommandToTerminal(cmds.createVenv);
+    sendCommandToTerminal(cmds.activateVenv);
+    setTimeout(() => updatePythonVersion(), 3000);
+    tryAutoSetInterpreter();
 }
 
-/**
- * Syncs UV dependencies with pyproject.toml.
- */
 async function syncDependencies() {
-    try {
-        const cmds = getTerminalCommands();
+    const cmds = getTerminalCommands();
+    const choice = await vscode.window.showQuickPick(
+        ['Run sync now', 'Preview changes (dry-run)', 'Cancel'],
+        { placeHolder: 'Sync UV dependencies with pyproject.toml' }
+    );
+
+    if (!choice || choice === 'Cancel') return;
+
+    if (choice === 'Preview changes (dry-run)') {
+        sendCommandToTerminal(`${cmds.syncDeps} --dry-run`);
+    } else {
         sendCommandToTerminal(cmds.syncDeps);
-        vscode.window.showInformationMessage('Synced UV dependencies');
-        
-        // Auto-set interpreter after sync (in case environment was just created)
-        const workspaceFolder = getFirstWorkspaceFolder();
-        if (workspaceFolder) {
-            waitAndSetInterpreter(workspaceFolder).catch(err => {
-                console.error('Failed to auto-set interpreter after sync:', err);
-            });
-        }
-    } catch (error) {
-        vscode.window.showErrorMessage("Error syncing UV dependencies");
-        console.error(error);
+    }
+
+    tryAutoSetInterpreter();
+}
+
+function activateEnv() {
+    const cmds = getTerminalCommands();
+    sendCommandToTerminal(cmds.activateVenv);
+    setTimeout(() => updatePythonVersion(), 2000);
+    tryAutoSetInterpreter();
+}
+
+async function addPackage() {
+    const input = await vscode.window.showInputBox({
+        prompt: 'Package to add',
+        placeHolder: 'e.g., requests, flask>=2.0, numpy',
+    });
+    if (!input) return;
+
+    sendCommandToTerminal(`uv add ${input}`);
+    setTimeout(() => updatePythonVersion(), 3000);
+}
+
+async function removePackage() {
+    const deps = readDependencyNames();
+    if (deps.length === 0) {
+        vscode.window.showInformationMessage('No dependencies found in pyproject.toml');
+        return;
+    }
+
+    const packageName = await vscode.window.showQuickPick(deps, {
+        placeHolder: 'Select package to remove',
+    });
+    if (!packageName) return;
+
+    sendCommandToTerminal(`uv remove ${packageName}`);
+}
+
+function readDependencyNames() {
+    const folder = getFirstWorkspaceFolder();
+    if (!folder) return [];
+
+    const pyproject = path.join(folder.uri.fsPath, 'pyproject.toml');
+    if (!fs.existsSync(pyproject)) return [];
+
+    try {
+        const text = fs.readFileSync(pyproject, 'utf8');
+        const { main } = parsePyprojectDependencies(text);
+        return main.map(d => d.name);
+    } catch {
+        return [];
     }
 }
 
-/**
- * Activates an existing UV environment.
- */
-async function activateEnv() {
-    try {
-        const cmds = getTerminalCommands();
-        sendCommandToTerminal(cmds.activateVenv);
-        vscode.window.showInformationMessage("UV environment activated");
-        
-        // Automatically set the Python interpreter when activating
-        const workspaceFolder = getFirstWorkspaceFolder();
-        if (workspaceFolder) {
-            // Fire-and-forget: don't block the command, but set interpreter in background
-            waitAndSetInterpreter(workspaceFolder).catch(err => {
-                console.error('Failed to auto-set interpreter on activation:', err);
-            });
-        }
-    } catch (error) {
-        vscode.window.showErrorMessage("Failed to activate UV environment");
-        console.error(error);
+async function runScript() {
+    const folder = getFirstWorkspaceFolder();
+    if (!folder) {
+        vscode.window.showErrorMessage('No workspace folder open');
+        return;
     }
+
+    const pyproject = path.join(folder.uri.fsPath, 'pyproject.toml');
+    if (!fs.existsSync(pyproject)) {
+        vscode.window.showErrorMessage('No pyproject.toml found');
+        return;
+    }
+
+    const text = fs.readFileSync(pyproject, 'utf8');
+    const scripts = parsePyprojectScripts(text);
+    if (scripts.length === 0) {
+        vscode.window.showInformationMessage('No scripts found in pyproject.toml [project.scripts]');
+        return;
+    }
+
+    const choice = await vscode.window.showQuickPick(scripts, {
+        placeHolder: 'Select script to run with uv run',
+    });
+    if (!choice) return;
+
+    sendCommandToTerminal(`uv run ${choice}`);
+}
+
+function lock() {
+    const cmds = getTerminalCommands();
+    sendCommandToTerminal(cmds.lock);
 }
 
 module.exports = {
@@ -109,5 +153,9 @@ module.exports = {
     initProject,
     createEnv,
     syncDependencies,
-    activateEnv
+    activateEnv,
+    addPackage,
+    removePackage,
+    runScript,
+    lock,
 };

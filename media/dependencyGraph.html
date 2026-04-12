@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'none'; style-src 'nonce-{{NONCE}}'; script-src 'nonce-{{NONCE}}';">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style nonce="{{NONCE}}">
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            overflow: hidden;
+            background: var(--vscode-editor-background);
+            color: var(--vscode-editor-foreground);
+            font-family: var(--vscode-font-family);
+            font-size: var(--vscode-font-size);
+        }
+        svg { width: 100vw; height: 100vh; display: block; }
+        .link {
+            stroke: var(--vscode-editorWidget-border, #555);
+            stroke-opacity: 0.3;
+            fill: none;
+        }
+        .link-arrow {
+            fill: var(--vscode-editorWidget-border, #555);
+            opacity: 0.3;
+        }
+        .node .node-label {
+            font-size: 11px;
+            font-weight: 600;
+            fill: var(--vscode-editor-foreground);
+            pointer-events: none;
+            text-anchor: middle;
+        }
+        .node .node-version {
+            font-size: 9px;
+            fill: var(--vscode-editor-foreground);
+            opacity: 0.6;
+            pointer-events: none;
+            text-anchor: middle;
+        }
+        .node circle {
+            stroke: var(--vscode-editor-background);
+            stroke-width: 2px;
+            cursor: pointer;
+        }
+        .node.dimmed circle { opacity: 0.1; }
+        .node.dimmed text { opacity: 0.1; }
+        .link.dimmed { stroke-opacity: 0.03; }
+        .link.highlighted { stroke-opacity: 0.8; stroke-width: 2.5px; }
+
+        #legend {
+            position: fixed;
+            left: 16px;
+            bottom: 16px;
+            background: var(--vscode-editorWidget-background, #252526);
+            border: 1px solid var(--vscode-editorWidget-border, #454545);
+            border-radius: 6px;
+            padding: 12px 16px;
+            font-size: 12px;
+            z-index: 10;
+        }
+        #legend h3 { margin-bottom: 8px; font-size: 13px; }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 4px 0;
+        }
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+        .legend-dot-root { background-color: #DCDCAA; }
+        .legend-dot-direct { background-color: #4FC1FF; }
+        .legend-dot-transitive { background-color: #6A9955; }
+
+        #detail-panel {
+            position: fixed;
+            right: 16px;
+            top: 16px;
+            background: var(--vscode-editorWidget-background, #252526);
+            border: 1px solid var(--vscode-editorWidget-border, #454545);
+            border-radius: 6px;
+            padding: 16px;
+            min-width: 220px;
+            max-width: 320px;
+            font-size: 12px;
+            z-index: 10;
+            display: none;
+        }
+        #detail-panel h3 { margin-bottom: 4px; font-size: 14px; word-break: break-all; }
+        #detail-panel .version { opacity: 0.7; margin-bottom: 8px; }
+        #detail-panel .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
+        .badge-root { background-color: #DCDCAA22; color: #DCDCAA; }
+        .badge-direct { background-color: #4FC1FF22; color: #4FC1FF; }
+        .badge-transitive { background-color: #6A995522; color: #6A9955; }
+        #detail-panel .stats { opacity: 0.7; margin-bottom: 8px; }
+        #detail-panel a {
+            color: var(--vscode-textLink-foreground, #4FC1FF);
+            text-decoration: none;
+        }
+        #detail-panel a:hover { text-decoration: underline; }
+        #detail-close {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            cursor: pointer;
+            opacity: 0.6;
+            font-size: 16px;
+            background: none;
+            border: none;
+            color: var(--vscode-editor-foreground);
+        }
+        #detail-close:hover { opacity: 1; }
+
+        #stats-bar {
+            position: fixed;
+            left: 16px;
+            top: 16px;
+            background: var(--vscode-editorWidget-background, #252526);
+            border: 1px solid var(--vscode-editorWidget-border, #454545);
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 12px;
+            opacity: 0.9;
+            z-index: 10;
+        }
+        #stats-bar .title {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div id="stats-bar">
+        <div class="title">UV Wingman - Dependency Graph</div>
+        <div id="stats-text"></div>
+    </div>
+    <div id="legend">
+        <h3>Legend</h3>
+        <div class="legend-item"><div class="legend-dot legend-dot-root"></div>Project Root</div>
+        <div class="legend-item"><div class="legend-dot legend-dot-direct"></div>Direct Dependency</div>
+        <div class="legend-item"><div class="legend-dot legend-dot-transitive"></div>Transitive Dependency</div>
+    </div>
+    <div id="detail-panel">
+        <button id="detail-close">&times;</button>
+        <h3 id="detail-name"></h3>
+        <div class="version" id="detail-version"></div>
+        <div id="detail-badge-wrap"></div>
+        <div class="stats" id="detail-stats"></div>
+        <div id="detail-link"></div>
+    </div>
+    <svg id="graph"></svg>
+
+    <script nonce="{{NONCE}}" src="{{D3_URI}}"></script>
+    <script nonce="{{NONCE}}">
+        const graphData = {{GRAPH_DATA}};
+        const COLOR_ROOT = '#DCDCAA';
+        const COLOR_DIRECT = '#4FC1FF';
+        const COLOR_TRANSITIVE = '#6A9955';
+
+        function nodeColor(d) {
+            if (d.isRoot) return COLOR_ROOT;
+            if (d.isDirect) return COLOR_DIRECT;
+            return COLOR_TRANSITIVE;
+        }
+
+        function nodeRadius(d) {
+            if (d.isRoot) return 28;
+            if (d.isDirect) return 18;
+            return 12;
+        }
+
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        // Stats
+        const directCount = graphData.nodes.filter(n => n.isDirect).length;
+        const transitiveCount = graphData.nodes.filter(n => !n.isDirect && !n.isRoot).length;
+        document.getElementById('stats-text').textContent =
+            graphData.nodes.length + ' packages (' + directCount + ' direct, ' + transitiveCount + ' transitive)';
+
+        const svg = d3.select('#graph')
+            .attr('width', width)
+            .attr('height', height);
+
+        // Arrow marker
+        svg.append('defs').append('marker')
+            .attr('id', 'arrowhead')
+            .attr('viewBox', '0 -5 10 10')
+            .attr('refX', 20)
+            .attr('refY', 0)
+            .attr('markerWidth', 6)
+            .attr('markerHeight', 6)
+            .attr('orient', 'auto')
+            .append('path')
+            .attr('d', 'M0,-4L8,0L0,4')
+            .attr('class', 'link-arrow');
+
+        const g = svg.append('g');
+
+        // Zoom
+        const zoom = d3.zoom()
+            .scaleExtent([0.05, 4])
+            .on('zoom', (event) => g.attr('transform', event.transform));
+        svg.call(zoom);
+
+        // Build adjacency for highlighting
+        const linkedByIndex = new Set();
+        graphData.edges.forEach(e => {
+            linkedByIndex.add(e.source + '|' + e.target);
+        });
+        function isConnected(a, b) {
+            return a === b || linkedByIndex.has(a + '|' + b) || linkedByIndex.has(b + '|' + a);
+        }
+
+        // Simple force-directed layout — let D3 handle positioning naturally
+        const simulation = d3.forceSimulation(graphData.nodes)
+            .force('link', d3.forceLink(graphData.edges).id(d => d.id).distance(100))
+            .force('charge', d3.forceManyBody().strength(-300))
+            .force('center', d3.forceCenter(width / 2, height / 2))
+            .force('collide', d3.forceCollide().radius(d => nodeRadius(d) + 20));
+
+        // Links
+        const link = g.append('g')
+            .selectAll('line')
+            .data(graphData.edges)
+            .join('line')
+            .attr('class', 'link')
+            .attr('marker-end', 'url(#arrowhead)');
+
+        // Nodes
+        const node = g.append('g')
+            .selectAll('g')
+            .data(graphData.nodes)
+            .join('g')
+            .attr('class', 'node')
+            .call(d3.drag()
+                .on('start', dragstarted)
+                .on('drag', dragged)
+                .on('end', dragended));
+
+        node.append('circle')
+            .attr('r', d => nodeRadius(d))
+            .attr('fill', d => nodeColor(d));
+
+        // Package name label
+        node.append('text')
+            .attr('class', 'node-label')
+            .text(d => d.name)
+            .attr('dy', d => nodeRadius(d) + 13);
+
+        // Version label below name
+        node.append('text')
+            .attr('class', 'node-version')
+            .text(d => d.version ? 'v' + d.version : '')
+            .attr('dy', d => nodeRadius(d) + 24);
+
+        // Hover highlighting
+        node.on('mouseenter', function(event, d) {
+            node.classed('dimmed', o => !isConnected(d.id, o.id));
+            link.classed('dimmed', l => l.source.id !== d.id && l.target.id !== d.id);
+            link.classed('highlighted', l => l.source.id === d.id || l.target.id === d.id);
+        });
+        node.on('mouseleave', function() {
+            node.classed('dimmed', false);
+            link.classed('dimmed', false);
+            link.classed('highlighted', false);
+        });
+
+        // Click detail panel
+        node.on('click', function(event, d) {
+            event.stopPropagation();
+            const panel = document.getElementById('detail-panel');
+            document.getElementById('detail-name').textContent = d.name;
+            document.getElementById('detail-version').textContent = d.version ? 'v' + d.version : '';
+
+            const badgeWrap = document.getElementById('detail-badge-wrap');
+            let badgeClass;
+            let badgeLabel;
+            if (d.isRoot) { badgeLabel = 'Project Root'; badgeClass = 'badge-root'; }
+            else if (d.isDirect) { badgeLabel = 'Direct Dependency'; badgeClass = 'badge-direct'; }
+            else { badgeLabel = 'Transitive Dependency'; badgeClass = 'badge-transitive'; }
+            badgeWrap.innerHTML = '<span class="badge ' + badgeClass + '">' + badgeLabel + '</span>';
+
+            const outDeg = graphData.edges.filter(e => (e.source.id || e.source) === d.id).length;
+            const inDeg = graphData.edges.filter(e => (e.target.id || e.target) === d.id).length;
+            document.getElementById('detail-stats').textContent =
+                'Depends on ' + outDeg + ' package' + (outDeg !== 1 ? 's' : '') +
+                ' \u00B7 ' + inDeg + ' dependant' + (inDeg !== 1 ? 's' : '');
+
+            if (!d.isRoot) {
+                document.getElementById('detail-link').innerHTML =
+                    '<a href="https://pypi.org/project/' + d.name + '/">View on PyPI \u2197</a>';
+            } else {
+                document.getElementById('detail-link').innerHTML = '';
+            }
+
+            panel.style.display = 'block';
+        });
+
+        // Close detail
+        document.getElementById('detail-close').addEventListener('click', () => {
+            document.getElementById('detail-panel').style.display = 'none';
+        });
+        svg.on('click', () => {
+            document.getElementById('detail-panel').style.display = 'none';
+        });
+
+        // Tick
+        simulation.on('tick', () => {
+            link
+                .attr('x1', d => d.source.x)
+                .attr('y1', d => d.source.y)
+                .attr('x2', d => d.target.x)
+                .attr('y2', d => d.target.y);
+            node.attr('transform', d => 'translate(' + d.x + ',' + d.y + ')');
+        });
+
+        // Drag handlers
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+
+        // Fit the graph in view once simulation settles
+        simulation.on('end', () => {
+            const bounds = g.node().getBBox();
+            if (bounds.width === 0 || bounds.height === 0) return;
+            const pad = 80;
+            const scale = Math.min(
+                (width - pad * 2) / bounds.width,
+                (height - pad * 2) / bounds.height,
+                1.2
+            );
+            const tx = width / 2 - (bounds.x + bounds.width / 2) * scale;
+            const ty = height / 2 - (bounds.y + bounds.height / 2) * scale;
+            svg.transition().duration(750).call(
+                zoom.transform,
+                d3.zoomIdentity.translate(tx, ty).scale(scale)
+            );
+        });
+    </script>
+</body>
+</html>

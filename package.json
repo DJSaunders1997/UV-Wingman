@@ -2,7 +2,7 @@
 	"name": "uv-wingman",
 	"displayName": "UV Wingman",
 	"description": "Help users manage and interact with the python UV package manager.",
-	"version": "1.0.3",
+	"version": "2.0.0",
 	"publisher": "DJSaunders1997",
 	"engines": {
 		"vscode": "^1.95.0"
@@ -48,8 +48,61 @@
 			{
 				"command": "uv-wingman.deleteEnvironment",
 				"title": "UV Wingman: Delete Environment"
+			},
+			{
+				"command": "uv-wingman.activateEnvironment",
+				"title": "UV Wingman: Activate UV Environment"
+			},
+			{
+				"command": "uv-wingman.addPackage",
+				"title": "UV Wingman: Add Package"
+			},
+			{
+				"command": "uv-wingman.removePackage",
+				"title": "UV Wingman: Remove Package"
+			},
+			{
+				"command": "uv-wingman.runScript",
+				"title": "UV Wingman: Run Script"
+			},
+			{
+				"command": "uv-wingman.lock",
+				"title": "UV Wingman: Lock Dependencies"
+			},
+			{
+				"command": "uv-wingman.visualiseDependencies",
+				"title": "UV Wingman: Visualise Dependencies"
 			}
-		]
+		],
+		"menus": {
+			"editor/title": [
+				{
+					"command": "uv-wingman.visualiseDependencies",
+					"when": "resourceFilename == 'uv.lock' || resourceFilename == 'pyproject.toml'",
+					"group": "navigation"
+				}
+			]
+		},
+		"configuration": {
+			"title": "UV Wingman",
+			"properties": {
+				"uvWingman.envName": {
+					"type": "string",
+					"default": ".venv",
+					"description": "Name of the virtual environment directory (e.g., .venv, venv, env)"
+				},
+				"uvWingman.showStatusBarItems": {
+					"type": "boolean",
+					"default": true,
+					"description": "Show UV Wingman status bar items"
+				},
+				"uvWingman.autoSetInterpreter": {
+					"type": "boolean",
+					"default": true,
+					"description": "Automatically set the VS Code Python interpreter when an environment is created or activated"
+				}
+			}
+		}
 	},
 	"scripts": {
 		"lint": "eslint .",
@@ -74,5 +127,7 @@
 	},
 	"homepage": "https://github.com/DJSaunders1997/uv-Wingman#readme",
 	"dependencies": {
+		"@iarna/toml": "^2.2.5",
+		"d3": "^7.9.0"
 	}
 }
