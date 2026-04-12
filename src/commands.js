@@ -80,16 +80,15 @@ async function syncDependencies() {
         const cmds = getTerminalCommands();
         // Offer the user a preview (dry-run) before running actual sync
         const choice = await vscode.window.showQuickPick(
-            ['Preview changes', 'Run sync now', 'Cancel'],
-            { placeHolder: 'Preview the changes that `uv sync` will perform or run sync now' }
+            ['Run sync now', 'Preview changes (dry-run)', 'Cancel'],
+            { placeHolder: 'Sync UV dependencies with pyproject.toml' }
         );
 
         if (!choice || choice === 'Cancel') {
             return;
         }
 
-        if (choice === 'Preview changes') {
-            // send a dry-run variant of uv sync to the terminal
+        if (choice === 'Preview changes (dry-run)') {
             sendCommandToTerminal(`${cmds.syncDeps} --dry-run`);
             vscode.window.showInformationMessage('Previewing UV sync (dry-run) in terminal');
         } else {
