@@ -27,6 +27,7 @@ const { getVenvInterpreterPath, setWorkspacePythonInterpreter } = require('./int
 const { getConfig } = require('./config');
 const { registerDocumentLinks } = require('./documentLinks');
 const { registerCodeLens } = require('./codeLens');
+const { DependencyProvider } = require('./dependencyTree');
 
 /**
  * Checks whether the `uv` CLI is available on PATH.
@@ -165,6 +166,20 @@ function activate(context) {
 
     // Register CodeLens for dependency versions and descriptions
     registerCodeLens(context);
+
+    // Register dependency tree view
+    const depProvider = new DependencyProvider();
+    vscode.window.registerTreeDataProvider('uvWingmanDependencies', depProvider);
+
+    // Auto-refresh tree when pyproject.toml changes
+    const depTreeWatcher = vscode.workspace.createFileSystemWatcher('**/pyproject.toml');
+    depTreeWatcher.onDidChange(() => depProvider.refresh());
+    depTreeWatcher.onDidCreate(() => depProvider.refresh());
+    depTreeWatcher.onDidDelete(() => depProvider.refresh());
+    context.subscriptions.push(depTreeWatcher);
+
+    // Expose provider globally so commands can trigger refresh
+    global._uvWingmanDepProvider = depProvider;
   });
 }
 

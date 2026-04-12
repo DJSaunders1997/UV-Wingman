@@ -70,6 +70,23 @@
 				"title": "UV Wingman: Lock Dependencies"
 			}
 		],
+		"views": {
+			"explorer": [
+				{
+					"id": "uvWingmanDependencies",
+					"name": "UV Dependencies"
+				}
+			]
+		},
+		"menus": {
+			"view/item/context": [
+				{
+					"command": "uv-wingman.removePackage",
+					"when": "view == uvWingmanDependencies && viewItem == dependencyItem",
+					"group": "inline"
+				}
+			]
+		},
 		"configuration": {
 			"title": "UV Wingman",
 			"properties": {
