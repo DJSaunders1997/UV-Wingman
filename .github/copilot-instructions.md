@@ -6,8 +6,8 @@ Keep this short, concrete, and code-referenced. Prefer editing the exact files n
 
 1) Big picture (what this extension does)
 - Activation: the extension activates when a `pyproject.toml` exists in the workspace (see `package.json` -> `activationEvents`).
-- Goal: provide one-click UV package manager workflows (init, create env, activate, sync, lock, add/remove packages, run scripts, delete env) via the status bar, command palette, and dependency tree view.
-- Main flow: `extension.js` (activate) registers commands -> `commands.js` implements command handlers -> `terminalCommands.js` supplies shell-specific templates -> `utils.js` sends text to the terminal. `interpreter.js` implements auto-setting the workspace Python interpreter. `config.js` reads extension settings. `dependencyTree.js` provides the tree view.
+- Goal: provide one-click UV package manager workflows (init, create env, activate, sync, lock, add/remove packages, run scripts, delete env) via the status bar, command palette, inline PyPI links/version hints, and an interactive dependency graph.
+- Main flow: `extension.js` (activate) registers commands -> `commands.js` implements command handlers -> `terminalCommands.js` supplies shell-specific templates -> `utils.js` sends text to the terminal. `interpreter.js` implements auto-setting the workspace Python interpreter. `config.js` reads extension settings. `tomlParser.js` provides shared TOML parsing.
 
 2) Key files to reference (single-line purpose)
 - `src/extension.js` — extension entrypoint, activation, command registration, status-bar wiring, uv availability check.
@@ -17,7 +17,11 @@ Keep this short, concrete, and code-referenced. Prefer editing the exact files n
 - `src/terminalCommands.js` — shell command template builders (functions accepting envName) and terminal detection.
 - `src/utils.js` — terminal helper (`sendCommandToTerminal` with undefined guard) and `getFirstWorkspaceFolder()`.
 - `src/statusBarItems.js` — status bar UI, Python version display, show/hide helpers.
-- `src/dependencyTree.js` — tree view provider showing main deps, optional deps, and dependency groups with PyPI links.
+- `src/tomlParser.js` — shared TOML parsing via `@iarna/toml` (deps, scripts, lock positions).
+- `src/documentLinks.js` — clickable PyPI hyperlinks in pyproject.toml and uv.lock.
+- `src/codeLens.js` — inline version hints, freshness indicators, hover tooltips.
+- `src/dependencyGraph.js` — builds graph data from uv.lock + pyproject.toml.
+- `src/dependencyGraphPanel.js` — webview panel hosting D3.js interactive dependency graph.
 - `package.json` — scripts, `contributes.commands`, `contributes.configuration`, `contributes.menus`, must be updated when adding new commands or settings.
 - `test/` — mocha tests and the VS Code test runner harness.
 
@@ -28,7 +32,7 @@ Keep this short, concrete, and code-referenced. Prefer editing the exact files n
 - Interpreter auto-set is non-blocking: uses fire-and-forget with polling (up to 15 attempts, 1s apart).
 - The extension writes the interpreter using `python.defaultInterpreterPath` at **workspace scope**.
 - `sendCommandToTerminal` guards against undefined commands — it will show an error message and return early.
-- The dependency tree auto-refreshes via a file watcher on `pyproject.toml`.
+- TOML parsing is centralised in `tomlParser.js` — all consumers use shared parse functions rather than manual regex.
 
 4) How terminal commands are handled (pattern to follow)
 - All commands are built via builder functions in `src/terminalCommands.js` (e.g., `getPosixCommands(envName)`).
@@ -50,11 +54,11 @@ Keep this short, concrete, and code-referenced. Prefer editing the exact files n
 
 7) Conventions and patterns to preserve
 - Error handling: command handlers wrap work in try/catch and call `vscode.window.showErrorMessage`.
-- Non-blocking behavior: interpreter setting and tree refresh are fire-and-forget.
+- Non-blocking behavior: interpreter setting is fire-and-forget.
 - Delete confirmation: `removeEnv` shows a modal warning before proceeding.
 - Settings gating: auto-interpreter calls are gated behind `getConfig().autoSetInterpreter`.
 - Status bar: managed through `showAllStatusBarItems()`/`hideAllStatusBarItems()`, respects `showStatusBarItems` setting.
-- Dependency tree refresh: after add/remove commands, a `setTimeout` fires `global._uvWingmanDepProvider.refresh()`.
+- Dependency graph: launched via `uv-wingman.visualiseDependencies` command, renders in a webview panel using D3.js.
 
 8) What NOT to change lightly
 - `activationEvents` in `package.json` — changing this alters when the extension loads.

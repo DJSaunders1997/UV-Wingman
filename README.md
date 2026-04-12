@@ -14,7 +14,7 @@
 
 ## Features
 
-UV Wingman activates automatically when a `pyproject.toml` is detected in your workspace and exposes common UV workflows through the status bar, Command Palette, and an explorer tree view.
+UV Wingman activates automatically when a `pyproject.toml` is detected in your workspace and exposes common UV workflows through the status bar and Command Palette.
 
 ### Environment Management
 
@@ -44,16 +44,27 @@ UV Wingman activates automatically when a `pyproject.toml` is detected in your w
 
 Package names in `pyproject.toml` and `uv.lock` are **clickable hyperlinks** that open the package on PyPI. No separate panel needed -- just Ctrl/Cmd+click any dependency name in the files you're already editing.
 
+<!-- TODO: Add screenshot showing clickable PyPI links in pyproject.toml -->
+
 ### Inline Version Hints
 
-Dependencies in `pyproject.toml` show the **latest PyPI version** as greyed-out text at the end of each line (similar to GitLens inline blame). Color-coded freshness indicators show whether your specifier allows the latest version or is pinned behind. Hover over any dependency for a description and PyPI link.
+Dependencies in `pyproject.toml` show the **latest PyPI version** as greyed-out text at the end of each line (similar to GitLens inline blame). Colour-coded freshness indicators show whether your specifier allows the latest version or is pinned behind. Hover over any dependency for a description and PyPI link.
+
+- Green "latest: X.Y.Z" -- your specifier allows the latest version
+- Yellow "newer available: X.Y.Z" -- a newer version exists that your specifier blocks
+
+<!-- TODO: Add screenshot showing inline version hints with green/yellow indicators -->
+<!-- TODO: Add screenshot/gif showing hover tooltip with package description -->
 
 ### Dependency Graph
 
-Open `uv.lock` and click the **Visualise Dependencies** button in the editor toolbar to see an interactive dependency graph. The graph shows your full resolved dependency tree with:
-- **Color-coded nodes**: project root (yellow), direct dependencies (blue), transitive dependencies (green)
-- **Hierarchical layout**: dependencies flow top-to-bottom from your project root
+Open `uv.lock` or `pyproject.toml` and click **UV Wingman: Visualise Dependencies** in the editor title menu to see an interactive dependency graph. The graph shows your full resolved dependency tree with:
+- **Colour-coded nodes**: project root (yellow), direct dependencies (blue), transitive dependencies (green)
+- **Force-directed layout**: nodes spread naturally with related packages clustered together
 - **Interactivity**: zoom, pan, drag nodes, hover to highlight connections, click for package details and PyPI links
+- **Version labels**: each node shows the package name and resolved version
+
+<!-- TODO: Add screenshot/gif showing the dependency graph visualisation -->
 
 ### Status Bar
 
@@ -130,8 +141,12 @@ If your project uses `venv` or `env` instead of `.venv`, set `uvWingman.envName`
 | `src/terminalCommands.js` | Shell-specific command templates and terminal detection |
 | `src/statusBarItems.js` | Status bar UI items and Python version display |
 | `src/interpreter.js` | Python interpreter detection and workspace setting |
-| `src/documentLinks.js` | Inline PyPI hyperlinks for pyproject.toml and uv.lock |
-| `src/config.js` | Centralized settings reader |
+| `src/tomlParser.js` | Shared TOML parsing for dependencies, scripts, and lock file positions |
+| `src/documentLinks.js` | Clickable PyPI hyperlinks in pyproject.toml and uv.lock |
+| `src/codeLens.js` | Inline version hints, freshness indicators, and hover tooltips |
+| `src/dependencyGraph.js` | Builds graph data from uv.lock and pyproject.toml |
+| `src/dependencyGraphPanel.js` | Webview panel hosting the D3.js interactive dependency graph |
+| `src/config.js` | Centralised settings reader |
 | `src/utils.js` | Terminal and workspace utilities |
 
 ## Contributing
