@@ -104,19 +104,28 @@ function getVersionFreshness(versionSpec, latestVersion) {
     return fresh;
 }
 
-const { findPyprojectDepPositions } = require('./tomlParser');
+const { findPyprojectDepPositions, findLockNamePositions, buildLockVersionMap } = require('./tomlParser');
 
 /**
- * Parses dependency lines from a pyproject.toml document.
- * Returns array of { lineNum, pkgName, versionSpec, depStart, depEnd }.
+ * Returns package positions from pyproject.toml or uv.lock.
+ * Normalised to a common shape: { lineNum, colStart, colEnd, name, versionSpec }.
  */
-function parseDependencyLines(document) {
-    return findPyprojectDepPositions(document.getText()).map(dep => ({
-        lineNum: dep.lineNum,
-        pkgName: dep.name,
-        versionSpec: dep.versionSpec,
-        depStart: dep.colStart,
-        depEnd: dep.colEnd,
+function getPackagePositions(document) {
+    const text = document.getText();
+    if (document.uri.path.endsWith('pyproject.toml')) {
+        return findPyprojectDepPositions(text).map(dep => ({
+            lineNum: dep.lineNum,
+            colStart: dep.colStart,
+            colEnd: dep.colEnd,
+            name: dep.name,
+            versionSpec: dep.versionSpec,
+        }));
+    }
+    const versionMap = buildLockVersionMap(text);
+    return findLockNamePositions(text).map(pos => ({
+        ...pos,
+        versionSpec: null,
+        lockedVersion: versionMap.get(pos.name),
     }));
 }
 
@@ -125,65 +134,70 @@ let updateCounter = 0;
 
 /**
  * Updates inline decorations for the given text editor.
- * Fetches are done in parallel; decorations appear progressively as results arrive.
+ * Works on both pyproject.toml (inline hints + hovers) and uv.lock (hovers only).
  */
 async function updateDecorations(editor) {
-    if (!editor || !editor.document.uri.path.endsWith('pyproject.toml')) {
-        return;
-    }
+    if (!editor) return;
+
+    const filePath = editor.document.uri.path;
+    const isPyproject = filePath.endsWith('pyproject.toml');
+    const isLock = filePath.endsWith('uv.lock');
+    if (!isPyproject && !isLock) return;
 
     const thisUpdate = ++updateCounter;
-    const deps = parseDependencyLines(editor.document);
+    const positions = getPackagePositions(editor.document);
 
-    if (deps.length === 0) {
+    if (positions.length === 0) {
         editor.setDecorations(inlineDecorationType, []);
+        editor.setDecorations(hoverDecorationType, []);
         return;
     }
 
-    // Fetch all PyPI info in parallel
     const results = await Promise.all(
-        deps.map(async ({ lineNum, pkgName, versionSpec, depStart, depEnd }) => {
-            const info = await getPypiInfo(pkgName);
-            return { lineNum, pkgName, versionSpec, depStart, depEnd, info };
+        positions.map(async (pos) => {
+            const info = await getPypiInfo(pos.name);
+            return { ...pos, info };
         })
     );
 
-    // If a newer update started while we were fetching, discard these results
     if (thisUpdate !== updateCounter) return;
-    // Editor may have been closed
     if (editor !== vscode.window.activeTextEditor) return;
 
     const inlineDecorations = [];
     const hoverDecorations = [];
-    for (const { lineNum, pkgName, versionSpec, depStart, depEnd, info } of results) {
+
+    for (const { lineNum, colStart, colEnd, name, versionSpec, lockedVersion, info } of results) {
         if (!info) continue;
 
-        const line = editor.document.lineAt(lineNum);
-        const freshness = getVersionFreshness(versionSpec, info.version);
-        const versionLabel = freshness === stale
-            ? `newer available: ${info.version}`
-            : `latest: ${info.version}`;
+        // Hover tooltip (both file types)
+        const parts = [];
+        if (info.summary) parts.push(info.summary);
+        if (lockedVersion) parts.push(`**Locked version:** ${lockedVersion}`);
+        parts.push(`[View on PyPI](https://pypi.org/project/${name}/)`);
 
-        const hoverMarkdown = info.summary
-            ? `${info.summary}\n\n[View on PyPI](https://pypi.org/project/${pkgName}/)`
-            : `[View on PyPI](https://pypi.org/project/${pkgName}/)`;
-
-        // Inline version text at end of line
-        inlineDecorations.push({
-            range: new vscode.Range(lineNum, line.text.length, lineNum, line.text.length),
-            renderOptions: {
-                after: {
-                    contentText: `  ${freshness.icon} ${versionLabel}`,
-                    color: freshness.color,
-                },
-            },
-        });
-
-        // Hover tooltip covering the dependency text
         hoverDecorations.push({
-            range: new vscode.Range(lineNum, depStart, lineNum, depEnd),
-            hoverMessage: new vscode.MarkdownString(hoverMarkdown),
+            range: new vscode.Range(lineNum, colStart, lineNum, colEnd),
+            hoverMessage: new vscode.MarkdownString(parts.join('\n\n')),
         });
+
+        // Inline version hints (pyproject.toml only)
+        if (isPyproject) {
+            const line = editor.document.lineAt(lineNum);
+            const freshness = getVersionFreshness(versionSpec, info.version);
+            const versionLabel = freshness === stale
+                ? `newer available: ${info.version}`
+                : `latest: ${info.version}`;
+
+            inlineDecorations.push({
+                range: new vscode.Range(lineNum, line.text.length, lineNum, line.text.length),
+                renderOptions: {
+                    after: {
+                        contentText: `  ${freshness.icon} ${versionLabel}`,
+                        color: freshness.color,
+                    },
+                },
+            });
+        }
     }
 
     editor.setDecorations(inlineDecorationType, inlineDecorations);

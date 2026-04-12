@@ -2,7 +2,7 @@
 // for rendering in the webview.
 
 const TOML = require('@iarna/toml');
-const { parsePyprojectDependencies } = require('./tomlParser');
+const { parsePyprojectDependencies, collectAllDepNames } = require('./tomlParser');
 
 /**
  * Normalizes a Python package name for comparison.
@@ -24,15 +24,7 @@ function buildDependencyGraph(lockText, pyprojectText) {
     const packages = parsed.package || [];
 
     // Collect all direct dependency names from pyproject.toml
-    const { main, optionalGroups, dependencyGroups } = parsePyprojectDependencies(pyprojectText);
-    const directNames = new Set();
-    for (const dep of main) directNames.add(normalizeName(dep.name));
-    for (const deps of Object.values(optionalGroups)) {
-        for (const dep of deps) directNames.add(normalizeName(dep.name));
-    }
-    for (const deps of Object.values(dependencyGroups)) {
-        for (const dep of deps) directNames.add(normalizeName(dep.name));
-    }
+    const directNames = collectAllDepNames(parsePyprojectDependencies(pyprojectText), normalizeName);
 
     const nodes = [];
     const edges = [];

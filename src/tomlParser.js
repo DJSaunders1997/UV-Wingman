@@ -78,6 +78,23 @@ function parsePyprojectScripts(text) {
 }
 
 /**
+ * Collects all dependency names from parsed pyproject data into a Set.
+ * Applies an optional transform (e.g. normalizeName) to each name.
+ */
+function collectAllDepNames({ main, optionalGroups, dependencyGroups }, transform) {
+    const names = new Set();
+    const add = transform ? (n) => names.add(transform(n)) : (n) => names.add(n);
+    for (const dep of main) add(dep.name);
+    for (const deps of Object.values(optionalGroups)) {
+        for (const dep of deps) add(dep.name);
+    }
+    for (const deps of Object.values(dependencyGroups)) {
+        for (const dep of deps) add(dep.name);
+    }
+    return names;
+}
+
+/**
  * Finds the positions of dependency strings in a pyproject.toml document.
  * Uses the TOML parser to determine which names are real dependencies,
  * then scans the text to find their line/column positions.
@@ -85,17 +102,8 @@ function parsePyprojectScripts(text) {
  * Returns [{ lineNum, colStart, colEnd, name, versionSpec }]
  */
 function findPyprojectDepPositions(text) {
-    const { main, optionalGroups, dependencyGroups } = parsePyprojectDependencies(text);
-
-    // Collect all known dependency names
-    const depNames = new Set();
-    for (const dep of main) depNames.add(dep.name);
-    for (const deps of Object.values(optionalGroups)) {
-        for (const dep of deps) depNames.add(dep.name);
-    }
-    for (const deps of Object.values(dependencyGroups)) {
-        for (const dep of deps) depNames.add(dep.name);
-    }
+    const deps = parsePyprojectDependencies(text);
+    const depNames = collectAllDepNames(deps);
 
     if (depNames.size === 0) return [];
 
@@ -220,4 +228,5 @@ module.exports = {
     findPyprojectDepPositions,
     buildLockVersionMap,
     findLockNamePositions,
+    collectAllDepNames,
 };
