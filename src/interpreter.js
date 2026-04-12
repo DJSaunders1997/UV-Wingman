@@ -78,9 +78,6 @@ async function waitAndSetInterpreter(workspaceFolder, maxAttempts = 15, interval
         if (interpreter) {
             const success = await setWorkspacePythonInterpreter(interpreter);
             if (success) {
-                vscode.window.showInformationMessage(
-                    'Python interpreter set to .venv'
-                );
                 return true;
             }
             return false;

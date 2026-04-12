@@ -38,14 +38,12 @@ async function removeEnv() {
 function initProject() {
     const cmds = getTerminalCommands();
     sendCommandToTerminal(cmds.initProject);
-    vscode.window.showInformationMessage('Initialized UV project');
 }
 
 function createEnv() {
     const cmds = getTerminalCommands();
     sendCommandToTerminal(cmds.createVenv);
     sendCommandToTerminal(cmds.activateVenv);
-    vscode.window.showInformationMessage('Created and activated UV environment');
     setTimeout(() => updatePythonVersion(), 3000);
     tryAutoSetInterpreter();
 }
@@ -61,10 +59,8 @@ async function syncDependencies() {
 
     if (choice === 'Preview changes (dry-run)') {
         sendCommandToTerminal(`${cmds.syncDeps} --dry-run`);
-        vscode.window.showInformationMessage('Previewing UV sync (dry-run) in terminal');
     } else {
         sendCommandToTerminal(cmds.syncDeps);
-        vscode.window.showInformationMessage('Synced UV dependencies');
     }
 
     tryAutoSetInterpreter();
@@ -73,7 +69,6 @@ async function syncDependencies() {
 function activateEnv() {
     const cmds = getTerminalCommands();
     sendCommandToTerminal(cmds.activateVenv);
-    vscode.window.showInformationMessage("UV environment activated");
     setTimeout(() => updatePythonVersion(), 2000);
     tryAutoSetInterpreter();
 }
@@ -86,7 +81,6 @@ async function addPackage() {
     if (!input) return;
 
     sendCommandToTerminal(`uv add ${input}`);
-    vscode.window.showInformationMessage(`Adding ${input}...`);
     setTimeout(() => updatePythonVersion(), 3000);
 }
 
@@ -103,7 +97,6 @@ async function removePackage() {
     if (!packageName) return;
 
     sendCommandToTerminal(`uv remove ${packageName}`);
-    vscode.window.showInformationMessage(`Removing ${packageName}...`);
 }
 
 function readDependencyNames() {
@@ -148,13 +141,11 @@ async function runScript() {
     if (!choice) return;
 
     sendCommandToTerminal(`uv run ${choice}`);
-    vscode.window.showInformationMessage(`Running ${choice}...`);
 }
 
 function lock() {
     const cmds = getTerminalCommands();
     sendCommandToTerminal(cmds.lock);
-    vscode.window.showInformationMessage('Running uv lock...');
 }
 
 module.exports = {
