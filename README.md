@@ -21,9 +21,9 @@ UV Wingman activates automatically when a `pyproject.toml` is detected in your w
 | Command | Palette Title | Description |
 |---------|--------------|-------------|
 | `uv init` | **UV Wingman: Initialize UV Project** | Scaffold a new UV project |
-| `uv venv` | **UV Wingman: Create Environment** | Create a virtual environment and activate it |
+| `uv venv` | **UV Wingman: Create Environment from pyproject.toml** | Create a virtual environment and activate it |
 | `source .venv/bin/activate` | **UV Wingman: Activate UV Environment** | Activate the environment (shell-aware) |
-| `uv sync` | **UV Wingman: Sync Dependencies** | Sync environment with pyproject.toml (with dry-run preview) |
+| `uv sync` | **UV Wingman: Sync Dependencies with pyproject.toml** | Sync environment with pyproject.toml (with dry-run preview) |
 | `uv lock` | **UV Wingman: Lock Dependencies** | Update the lock file |
 | `rm -rf .venv` | **UV Wingman: Delete Environment** | Remove the virtual environment (with confirmation) |
 
@@ -32,7 +32,7 @@ UV Wingman activates automatically when a `pyproject.toml` is detected in your w
 | Command | Palette Title | Description |
 |---------|--------------|-------------|
 | `uv add <pkg>` | **UV Wingman: Add Package** | Add a package via input box |
-| `uv remove <pkg>` | **UV Wingman: Remove Package** | Remove a package via picker or tree right-click |
+| `uv remove <pkg>` | **UV Wingman: Remove Package** | Remove a package via quick-pick list |
 
 ### Scripts
 
@@ -70,7 +70,10 @@ Open `uv.lock` or `pyproject.toml` and click **UV Wingman: Visualise Dependencie
 
 Quick-access buttons in the status bar:
 - **Python version** (click to activate environment) -- shows "No env" when missing
-- Init, Sync, Add Package, Remove Environment
+- Sync, Add Package, Delete Environment
+- **Init** button appears only when no `pyproject.toml` exists yet
+
+<!-- TODO: Add screenshot showing status bar buttons -->
 
 ### Smart Defaults
 
