@@ -69,8 +69,8 @@ async function getPypiInfo(pkgName) {
 }
 
 /** Freshness indicators for inline decorations */
-const stale = { icon: '\u2191', color: '#E5C07B' };   // ↑ yellow — blocks latest
-const fresh = { icon: '\u2713', color: '#98C379' };    // ✓ green — allows latest
+const stale = { icon: '\u2191', color: 'rgba(229, 192, 123, 0.75)' };   // ↑ yellow — blocks latest
+const fresh = { icon: '\u2713', color: 'rgba(152, 195, 121, 0.75)' };    // ✓ green — allows latest
 
 /**
  * Compares a version specifier against the latest PyPI version.
@@ -186,7 +186,7 @@ async function updateDecorations(editor) {
             const freshness = getVersionFreshness(versionSpec, info.version);
             const versionLabel = freshness === stale
                 ? `newer available: ${info.version}`
-                : `latest: ${info.version}`;
+                : `latest`;
 
             inlineDecorations.push({
                 range: new vscode.Range(lineNum, line.text.length, lineNum, line.text.length),
