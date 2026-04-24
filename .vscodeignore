@@ -3,6 +3,18 @@
 .github/**
 .claude/**
 test/**
+node_modules/**/test/**
+node_modules/**/tests/**
+node_modules/**/*.md
+node_modules/**/.github/**
+node_modules/**/example/**
+node_modules/**/examples/**
+node_modules/**/docs/**
+node_modules/d3-*/**
+node_modules/d3/src/**
+node_modules/internmap/**
+node_modules/delaunator/**
+node_modules/robust-predicates/**
 .gitignore
 .yarnrc
 vsc-extension-quickstart.md
@@ -10,3 +22,6 @@ vsc-extension-quickstart.md
 **/*.map
 **/.eslintrc.json
 *.vsix
+CLAUDE.md
+CHANGELOG.md
+package-lock.json
